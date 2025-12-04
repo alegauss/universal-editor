@@ -15,27 +15,19 @@ console.log('🧪 Testing universal-editor.js...\n');
 try {
   const content = readFileSync(filePath, 'utf-8');
   
-  // Check for required imports
+  // Check for required imports - structured as [importName, packageName] pairs
   const requiredImports = [
-    'connectToParent',
-    'penpal',
-    'create',
-    'zustand',
-    'EditorState',
-    'prosemirror-state',
-    'EditorView',
-    'prosemirror-view',
-    'Schema',
-    'prosemirror-model'
+    ['connectToParent', 'penpal'],
+    ['create', 'zustand'],
+    ['EditorState', 'prosemirror-state'],
+    ['EditorView', 'prosemirror-view'],
+    ['Schema', 'prosemirror-model']
   ];
   
   let missingImports = [];
   let foundImports = [];
   
-  for (let i = 0; i < requiredImports.length; i += 2) {
-    const importName = requiredImports[i];
-    const packageName = requiredImports[i + 1];
-    
+  for (const [importName, packageName] of requiredImports) {
     if (content.includes(importName) && content.includes(packageName)) {
       foundImports.push(`${importName} from ${packageName}`);
       console.log(`✅ Found import: ${importName} from ${packageName}`);
@@ -96,7 +88,7 @@ try {
   console.log('='.repeat(50));
   
   const totalChecks = foundImports.length + foundFunctions.length + foundConstants.length;
-  const totalItems = requiredImports.length / 2 + requiredFunctions.length + requiredConstants.length;
+  const totalItems = requiredImports.length + requiredFunctions.length + requiredConstants.length;
   
   console.log(`✅ Passed: ${totalChecks}/${totalItems}`);
   console.log(`❌ Failed: ${totalItems - totalChecks}/${totalItems}`);
