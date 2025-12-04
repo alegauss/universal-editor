@@ -17809,6 +17809,6 @@ async function main() {
       _n({ editor: t }),
       Cn({ editor: t }),
       Tn(),
-      t.trackCorsVersion({ version: "3.4.0" });
-  })();
+  }
+main();
 })();
