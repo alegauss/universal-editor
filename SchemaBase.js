@@ -1,9 +1,9 @@
-// Classe base para validação e transformação de dados
+// Base class for data validation and transformation
 export class SchemaBase { 
   constructor(definition) {
     this._def = definition;
 
-    // Bind de métodos para garantir o contexto correto
+    // Bind methods to ensure correct context
     this.parse = this.parse.bind(this);
     this.safeParse = this.safeParse.bind(this);
     this.parseAsync = this.parseAsync.bind(this);
@@ -34,17 +34,17 @@ export class SchemaBase {
     this.isOptional = this.isOptional.bind(this);
   }
 
-  // Retorna a descrição do schema
+  // Returns the schema description
   get description() {
     return this._def.description;
   }
 
-  // Obtém o tipo do dado
+  // Gets the data type
   _getType(ctx) {
     return B(ctx.data);
   }
 
-  // Retorna o contexto ou cria um novo se não existir
+  // Returns the context or creates a new one if it doesn't exist
   _getOrReturnCtx(ctx, maybeCtx) {
     return (
       maybeCtx || {
@@ -58,7 +58,7 @@ export class SchemaBase {
     );
   }
 
-  // Processa os parâmetros de entrada
+  // Processes input parameters
   _processInputParams(ctx) {
     return {
       status: new W(),
@@ -73,7 +73,7 @@ export class SchemaBase {
     };
   }
 
-  // Métodos de validação síncrona e assíncrona
+  // Synchronous and asynchronous validation methods
   _parseSync(ctx) {
     const result = this._parse(ctx);
     if (te(result)) throw Error("Synchronous parse encountered promise.");
@@ -84,14 +84,14 @@ export class SchemaBase {
     return Promise.resolve(this._parse(ctx));
   }
 
-  // Validação síncrona
+  // Synchronous validation
   parse(data, options) {
     const result = this.safeParse(data, options);
     if (result.success) return result.data;
     throw result.error;
   }
 
-  // Validação segura síncrona
+  // Synchronous safe validation
   safeParse(data, options) {
     let asyncFlag = options?.async ?? false;
     let ctx = {
@@ -110,14 +110,14 @@ export class SchemaBase {
     return ie(ctx, parsed);
   }
 
-  // Validação assíncrona
+  // Asynchronous validation
   async parseAsync(data, options) {
     const result = await this.safeParseAsync(data, options);
     if (result.success) return result.data;
     throw result.error;
   }
 
-  // Validação segura assíncrona
+  // Asynchronous safe validation
   async safeParseAsync(data, options) {
     let ctx = {
       common: {
@@ -135,7 +135,7 @@ export class SchemaBase {
     return ie(ctx, await (te(parsed) ? parsed : Promise.resolve(parsed)));
   }
 
-  // Métodos de refinamento e transformação
+  // Refinement and transformation methods
   refine(check, message) {
     const getMessage = (val) =>
       typeof message === "string" || message === undefined
@@ -172,7 +172,7 @@ export class SchemaBase {
     return this._refinement(fn);
   }
 
-  // Métodos utilitários para composição de schemas
+  // Utility methods for schema composition
   optional() {
     return Xe.create(this, this._def);
   }
@@ -231,7 +231,7 @@ export class SchemaBase {
     return st.create(this);
   }
 
-  // Métodos para checar se o schema aceita undefined ou null
+  // Methods to check if the schema accepts undefined or null
   isOptional() {
     return this.safeParse(undefined).success;
   }

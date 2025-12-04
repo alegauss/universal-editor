@@ -1,11 +1,11 @@
-// Classe de erro personalizada para validação de dados
+// Custom error class for data validation.
 export class ZodError extends Error { 
   constructor(issues = []) {
     super();
     this.name = "ZodError";
     this.issues = issues;
 
-    // Métodos utilitários para adicionar erros
+    // Utility methods to add errors
     this.addIssue = (issue) => {
       this.issues = [...this.issues, issue];
     };
@@ -13,7 +13,7 @@ export class ZodError extends Error {
       this.issues = [...this.issues, ...issues];
     };
 
-    // Corrige o protótipo para herança adequada
+    // Fix the prototype for proper inheritance
     const proto = new.target.prototype;
     if (Object.setPrototypeOf) {
       Object.setPrototypeOf(this, proto);
@@ -22,12 +22,12 @@ export class ZodError extends Error {
     }
   }
 
-  // Retorna todos os erros
+  // Returns all errors
   get errors() {
     return this.issues;
   }
 
-  // Formata os erros em uma estrutura aninhada
+  // Formats errors into a nested structure
   format(mapper) {
     const mapFn = mapper || ((issue) => issue.message);
     const formatted = { _errors: [] };
@@ -62,27 +62,27 @@ export class ZodError extends Error {
     return formatted;
   }
 
-  // Garante que o erro é uma instância de ZodError
+  // Ensures that the error is an instance of ZodError
   static assert(error) {
     if (!(error instanceof ZodError)) throw Error(`Not a ZodError: ${error}`);
   }
 
-  // Retorna a mensagem do erro como string
+  // Returns the error message as a string
   toString() {
     return this.message;
   }
 
-  // Serializa os erros em JSON
+  // Serializes errors to JSON
   get message() {
     return JSON.stringify(this.issues, y.jsonStringifyReplacer, 2);
   }
 
-  // Verifica se não há erros
+  // Checks if there are no errors
   get isEmpty() {
     return this.issues.length === 0;
   }
 
-  // Retorna erros em formato simplificado para formulários
+  // Returns errors in a simplified format for forms
   flatten(mapper = (issue) => issue.message) {
     const fieldErrors = {};
     const formErrors = [];
@@ -98,7 +98,7 @@ export class ZodError extends Error {
     return { formErrors, fieldErrors };
   }
 
-  // Atalho para erros de formulário
+  // Shortcut for form errors
   get formErrors() {
     return this.flatten();
   }
