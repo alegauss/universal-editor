@@ -2,13 +2,14 @@
   "name": "universal-editor",
   "version": "1.0.0",
   "description": "Universal Editor for Adobe Experience Manager",
-  "main": "main.js",
+  "main": "universal-editor.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node build.js"
+    "test": "node test.js",
+    "build": "node build.js",
+    "validate": "node test.js && node build.js"
   },
-  "keywords": ["adobe", "aem", "editor"],
+  "keywords": ["adobe", "aem", "editor", "universal-editor"],
   "author": "",
   "license": "ISC",
   "dependencies": {
