@@ -1,19 +1,21 @@
 # universal-editor
 
-Universal Editor for Adobe Experience Manager (AEM) - Clean, modular, and maintainable.
+Universal Editor for Adobe Experience Manager (AEM) - Modern TypeScript implementation with clean, modular, and maintainable code.
 
 ## 🎯 Overview
 
-A modern, deminified implementation of the Universal Editor that allows content authors to edit content directly in context. This refactored version replaces the original minified bundle with clean, readable code using proper npm dependencies.
+A modern TypeScript implementation of the Universal Editor that allows content authors to edit content directly in context. This version is written in TypeScript and generates a minified JavaScript bundle with all dependencies included.
 
 ## ✨ Features
 
+- **TypeScript**: Full TypeScript implementation with type safety
 - **Multiple Editor Support**: Works with both TinyMCE and ProseMirror
 - **Cross-frame Communication**: Uses Penpal for secure parent-child frame communication
 - **Type-safe Validation**: Utilizes Zod for runtime type checking
 - **State Management**: Built with Zustand for lightweight, reactive state
 - **Event-driven Architecture**: Comprehensive event system for content operations
-- **Clean Code**: Fully deminified and documented
+- **Minified Build**: Production-ready minified bundle with all dependencies included
+- **Clean Code**: Fully documented TypeScript source
 
 ## 📦 Installation
 
@@ -21,27 +23,60 @@ A modern, deminified implementation of the Universal Editor that allows content 
 npm install
 ```
 
+## 🔨 Building
+
+Build the TypeScript source into a minified JavaScript bundle:
+
+```bash
+npm run build
+```
+
+This will:
+1. Compile TypeScript to JavaScript
+2. Bundle all dependencies
+3. Minify the output
+4. Generate source maps
+5. Output to `dist/universal-editor.min.js` (~224KB minified with all dependencies)
+
 ## 🔧 Dependencies
 
-All public libraries are now properly managed via npm instead of being bundled:
+### Runtime Dependencies
+
+All public libraries are now properly managed via npm:
 
 - **penpal** (^6.2.2): Cross-frame communication
 - **zod** (^3.22.4): TypeScript-first schema validation
 - **prosemirror-*** : Rich text editor framework
 - **zustand** (^4.4.7): State management
 
+### Dev Dependencies
+
+- **typescript** (^5.3.3): TypeScript compiler
+- **esbuild** (^0.19.9): Fast JavaScript bundler and minifier
+- **tsx** (^4.7.0): TypeScript execution engine
+
 ## 🚀 Usage
 
-### For Production (Adobe CDN)
+### For Production (Built Bundle)
+
+Use the minified bundle that includes all dependencies:
 
 ```html
-<script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+<script src="dist/universal-editor.min.js"></script>
 ```
 
 ### For Development (Local)
 
+For backwards compatibility, the original JavaScript file is still available:
+
 ```html
 <script src="universal-editor.js" type="module"></script>
+```
+
+Or use the built version:
+
+```html
+<script src="dist/universal-editor.min.js"></script>
 ```
 
 See `example.html` for a complete working example.
@@ -150,7 +185,10 @@ document.addEventListener('aue:content-remove', (event) => {
 npm test
 ```
 
-This validates the code structure and verifies all required imports and functions are present.
+This validates the TypeScript source structure and verifies:
+- All required imports and functions are present
+- TypeScript types are properly defined
+- Built bundle exists and is correctly generated
 
 ### Building
 
@@ -158,7 +196,15 @@ This validates the code structure and verifies all required imports and function
 npm run build
 ```
 
-This validates that all dependencies are installed and provides guidance on bundling.
+Compiles TypeScript and bundles into a minified JavaScript file with all dependencies.
+
+### Cleaning
+
+```bash
+npm run clean
+```
+
+Removes the `dist/` directory with all built files.
 
 ### Validation
 
@@ -166,64 +212,102 @@ This validates that all dependencies are installed and provides guidance on bund
 npm run validate
 ```
 
-Runs both tests and build validation.
+Runs both tests and build to ensure everything works correctly.
+
+## 📁 Project Structure
+
+```
+universal-editor/
+├── src/                          # TypeScript source files
+│   ├── universal-editor.ts       # Main editor implementation
+│   ├── build.ts                  # Build script
+│   └── test.ts                   # Test script
+├── dist/                         # Built files (generated)
+│   ├── universal-editor.min.js   # Minified bundle with all dependencies
+│   ├── universal-editor.min.js.map # Source map
+│   ├── universal-editor.js       # Compiled TypeScript (not minified)
+│   ├── universal-editor.d.ts     # TypeScript declarations
+│   └── ...                       # Other compiled files
+├── universal-editor.js           # Original JavaScript (backwards compatibility)
+├── build.js                      # Original build script
+├── test.js                       # Original test script
+├── tsconfig.json                 # TypeScript configuration
+├── package.json                  # Project configuration
+└── README.md                     # This file
+```
 
 ### Code Structure
 
-The refactored code is organized as follows:
+The TypeScript code is organized as follows:
 
 ```
-universal-editor.js       # Main entry point (clean, readable)
-├── State Management      # Zustand store for editor state
-├── ProseMirror Setup     # Rich text editor configuration
-├── Event Handlers        # DOM event listeners and handlers
-├── Parent Communication  # Penpal methods for cross-frame calls
-└── Initialization        # App startup logic
+src/universal-editor.ts       # Main entry point
+├── Types & Interfaces        # TypeScript type definitions
+├── Constants                 # EditorMode, ContentType, Events, etc.
+├── State Management          # Zustand store for editor state
+├── ProseMirror Setup         # Rich text editor configuration
+├── Event Handlers            # DOM event listeners and handlers
+├── Parent Communication      # Penpal methods for cross-frame calls
+└── Initialization            # App startup logic
 ```
 
 ### Performance Metrics
 
 **File Size Comparison:**
 - Original minified bundle: ~596 KB
-- New clean implementation: ~14 KB (core code)
-- **Reduction: 97.6%**
+- TypeScript source: ~17 KB  
+- New minified bundle (with all deps): ~224 KB (62% reduction)
+- With tree-shaking and gzip, production size is even smaller
 
-*Note: When bundled with dependencies, the size will increase, but with proper tree-shaking, the final bundle will still be significantly smaller than the original.*
+## 🔄 Migration to TypeScript
 
-## 🔄 Migration from Minified Version
+This version has been converted to TypeScript, providing:
 
-This version replaces the original `universal-editor.js` which was a 596KB minified bundle containing:
-- Embedded Penpal library
-- Embedded Zod library
-- Embedded ProseMirror (full suite)
-- Embedded Zustand
-- Custom application code
-
-**Benefits of the refactored version:**
-
-✅ **Readable**: Clean, well-documented code  
+✅ **Type Safety**: Catch errors at compile-time  
+✅ **Better IDE Support**: Autocomplete and IntelliSense  
+✅ **Readable**: Clean, well-documented TypeScript code  
 ✅ **Maintainable**: Proper separation of concerns  
-✅ **Smaller**: Tree-shaking reduces bundle size  
+✅ **Smaller Bundle**: Tree-shaking reduces final size  
 ✅ **Modern**: Uses ES modules and modern JavaScript  
 ✅ **Debuggable**: Source maps and clear stack traces  
-✅ **Type-safe**: Better IDE support and autocomplete  
+✅ **Self-documenting**: TypeScript types serve as documentation  
+
+### Breaking Changes
+
+None! The original `universal-editor.js` file is still available for backwards compatibility. The new build process creates a minified bundle at `dist/universal-editor.min.js` that can be used as a drop-in replacement.
 
 ## 📄 Files
 
-- `universal-editor.js` - Main editor implementation (clean)
+### TypeScript Source
+- `src/universal-editor.ts` - Main editor implementation (TypeScript)
+- `src/build.ts` - Build script (TypeScript)
+- `src/test.ts` - Test script (TypeScript)
+- `tsconfig.json` - TypeScript configuration
+
+### Built Output
+- `dist/universal-editor.min.js` - Minified bundle with all dependencies
+- `dist/universal-editor.min.js.map` - Source map
+- `dist/universal-editor.js` - Compiled JavaScript (not minified)
+- `dist/universal-editor.d.ts` - TypeScript declarations
+
+### Legacy Files (Backwards Compatibility)
+- `universal-editor.js` - Original JavaScript implementation
+- `build.js` - Original build script
+- `test.js` - Original test script
+
+### Documentation
 - `example.html` - Usage example
-- `index.html` - Original demo page
-- `build.js` - Build validation script
-- `package.json` - Dependencies and scripts
-- `universal-editor.js.backup` - Original minified version (for reference)
+- `README.md` - This file
+- `REFACTORING_SUMMARY.md` - Details of the refactoring process
 
 ## 🤝 Contributing
 
 When contributing, please:
 1. Keep code clean and well-documented
-2. Use proper npm packages instead of bundling libraries
+2. Use TypeScript for new code
 3. Follow existing code style
 4. Test your changes thoroughly
+5. Run `npm run validate` before submitting
 
 ## 📜 License
 
