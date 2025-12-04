@@ -29,3 +29,7 @@ package-lock.json
 
 # Backup files
 *.backup
+
+# TypeScript
+dist/
+*.tsbuildinfo
