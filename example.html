@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Editor - Usage Example</title>
+    
+    <!-- AEM Connection Configuration -->
+    <meta name="urn:adobe:aue:system:aemconnection" content="aem:https://localhost:4502" />
+    <meta name="urn:adobe:aue:system:namespace" content="aue" />
+    
+    <!-- Universal Editor Script (from CDN for production) -->
+    <script src="https://universal-editor-service.adobe.io/cors.js" async></script>
+    
+    <!-- OR use local version for development -->
+    <!-- <script src="universal-editor.js" type="module"></script> -->
+    
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .editable-section {
+            border: 2px dashed transparent;
+            padding: 10px;
+            transition: border-color 0.3s;
+        }
+        
+        html.aue-edit-mode .editable-section:hover {
+            border-color: #1473e6;
+        }
+        
+        .container {
+            display: grid;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Universal Editor Example</h1>
+    
+    <div class="container">
+        <!-- Text Content -->
+        <section class="editable-section">
+            <h2 
+                data-aue-resource="urn:aemconnection:/content/example/title" 
+                data-aue-type="text"
+                data-aue-prop="title">
+                Welcome to Universal Editor
+            </h2>
+            <p 
+                data-aue-resource="urn:aemconnection:/content/example/description" 
+                data-aue-type="richtext"
+                data-aue-prop="text">
+                This is an example of editable content. Click on this text in edit mode to modify it.
+            </p>
+        </section>
+        
+        <!-- Image Content -->
+        <section class="editable-section">
+            <img 
+                data-aue-resource="urn:aemconnection:/content/example/hero-image"
+                data-aue-type="media"
+                data-aue-prop="image"
+                src="https://via.placeholder.com/600x400"
+                alt="Hero Image"
+                style="max-width: 100%; height: auto;" />
+        </section>
+        
+        <!-- Container with Multiple Components -->
+        <section 
+            data-aue-resource="urn:aemconnection:/content/example/team"
+            data-aue-type="container">
+            <h2>Team Members</h2>
+            
+            <div 
+                data-aue-resource="urn:aemconnection:/content/example/team/member-1"
+                data-aue-type="component"
+                class="editable-section">
+                <h3 
+                    data-aue-prop="name"
+                    data-aue-type="text">
+                    Jane Doe
+                </h3>
+                <p 
+                    data-aue-prop="title"
+                    data-aue-type="text">
+                    Chief Editor
+                </p>
+                <img 
+                    data-aue-prop="avatar"
+                    data-aue-type="media"
+                    src="https://via.placeholder.com/150"
+                    alt="Jane Doe"
+                    style="border-radius: 50%; width: 150px; height: 150px;" />
+            </div>
+            
+            <div 
+                data-aue-resource="urn:aemconnection:/content/example/team/member-2"
+                data-aue-type="component"
+                class="editable-section">
+                <h3 
+                    data-aue-prop="name"
+                    data-aue-type="text">
+                    John Smith
+                </h3>
+                <p 
+                    data-aue-prop="title"
+                    data-aue-type="text">
+                    Lead Developer
+                </p>
+                <img 
+                    data-aue-prop="avatar"
+                    data-aue-type="media"
+                    src="https://via.placeholder.com/150"
+                    alt="John Smith"
+                    style="border-radius: 50%; width: 150px; height: 150px;" />
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // Listen for editor events
+        document.addEventListener('aue:initialized', () => {
+            console.log('✅ Universal Editor initialized');
+        });
+        
+        document.addEventListener('aue:ui-edit', () => {
+            console.log('📝 Entered edit mode');
+        });
+        
+        document.addEventListener('aue:ui-preview', () => {
+            console.log('👁️ Entered preview mode');
+        });
+        
+        document.addEventListener('aue:content-update', (event) => {
+            console.log('🔄 Content updated:', event.detail);
+        });
+    </script>
+</body>
+</html>
