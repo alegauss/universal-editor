@@ -8,23 +8,13 @@
  */
 
 import { build } from 'esbuild';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-const requiredDeps = [
-  'penpal',
-  'zod',
-  'prosemirror-state',
-  'prosemirror-view',
-  'prosemirror-model',
-  'prosemirror-transform',
-  'prosemirror-keymap',
-  'prosemirror-history',
-  'prosemirror-commands',
-  'prosemirror-schema-basic',
-  'prosemirror-schema-list',
-  'zustand'
-];
+// Read dependencies from package.json to stay in sync
+const packageJsonPath = join(process.cwd(), 'package.json');
+const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+const requiredDeps = Object.keys(packageJson.dependencies || {});
 
 console.log('🔍 Checking dependencies...\n');
 

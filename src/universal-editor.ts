@@ -133,6 +133,9 @@ const Events = {
   RTE_URL: 'https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js'
 } as const;
 
+// Version constant
+const VERSION = '3.4.0';
+
 // State Management
 const useEditorStore = createStore<EditorStore>()(
   subscribeWithSelector((set, get) => ({
@@ -224,7 +227,7 @@ function createProseMirrorEditor(target: HTMLElement, content: string | null, ed
         return false;
       },
       navigate: (view: EditorView, event: Event) => {
-        if (view.props.editable) {
+        if (view.props.editable && view.props.editable(view.state)) {
           event.preventDefault();
           event.stopImmediatePropagation();
         }
@@ -592,7 +595,7 @@ async function initializeApp(): Promise<void> {
   triggerEvent(Events.EVENT_APP_INITIALIZED);
 
   // Track version
-  (editor as EditorMethods).trackCorsVersion?.({ version: '3.4.0' });
+  (editor as EditorMethods).trackCorsVersion?.({ version: VERSION });
 }
 
 // Start the application
