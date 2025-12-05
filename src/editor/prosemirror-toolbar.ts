@@ -1,7 +1,7 @@
 /**
  * ProseMirror Toolbar
  * 
- * Cria uma toolbar flutuante com comandos de formatação
+ * Creates a floating toolbar with formatting commands
  */
 
 import { EditorView } from 'prosemirror-view';
@@ -17,7 +17,7 @@ export function createToolbar(view: EditorView, container: HTMLElement): HTMLEle
   const toolbar = document.createElement('div');
   toolbar.className = 'prosemirror-toolbar';
   
-  // Estilos inline para a toolbar
+  // Inline styles for toolbar
   Object.assign(toolbar.style, {
     position: 'sticky',
     top: '0',
@@ -34,78 +34,78 @@ export function createToolbar(view: EditorView, container: HTMLElement): HTMLEle
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   });
 
-  // Botões da toolbar
+  // Toolbar buttons
   const buttons: Array<any> = [
     {
-      title: 'Negrito',
+      title: 'Bold',
       icon: '𝐁',
       command: toggleMark(view.state.schema.marks.strong),
       active: (state: any) => markActive(state, state.schema.marks.strong)
     },
     {
-      title: 'Itálico',
+      title: 'Italic',
       icon: '𝐼',
       command: toggleMark(view.state.schema.marks.em),
       active: (state: any) => markActive(state, state.schema.marks.em)
     },
     {
-      title: 'Código',
+      title: 'Code',
       icon: '</>',
       command: toggleMark(view.state.schema.marks.code),
       active: (state: any) => markActive(state, state.schema.marks.code)
     },
     { type: 'separator' },
     {
-      title: 'Título 1',
+      title: 'Heading 1',
       icon: 'H1',
       command: setBlockType(view.state.schema.nodes.heading, { level: 1 }),
       active: (state: any) => blockActive(state, state.schema.nodes.heading, { level: 1 })
     },
     {
-      title: 'Título 2',
+      title: 'Heading 2',
       icon: 'H2',
       command: setBlockType(view.state.schema.nodes.heading, { level: 2 }),
       active: (state: any) => blockActive(state, state.schema.nodes.heading, { level: 2 })
     },
     {
-      title: 'Título 3',
+      title: 'Heading 3',
       icon: 'H3',
       command: setBlockType(view.state.schema.nodes.heading, { level: 3 }),
       active: (state: any) => blockActive(state, state.schema.nodes.heading, { level: 3 })
     },
     {
-      title: 'Parágrafo',
+      title: 'Paragraph',
       icon: '¶',
       command: setBlockType(view.state.schema.nodes.paragraph),
       active: (state: any) => blockActive(state, state.schema.nodes.paragraph)
     },
     { type: 'separator' },
     {
-      title: 'Lista com marcadores',
+      title: 'Bullet list',
       icon: '• •',
       command: wrapInList(view.state.schema.nodes.bullet_list),
       active: (state: any) => blockActive(state, state.schema.nodes.bullet_list)
     },
     {
-      title: 'Lista numerada',
+      title: 'Numbered list',
       icon: '1. 2.',
       command: wrapInList(view.state.schema.nodes.ordered_list),
       active: (state: any) => blockActive(state, state.schema.nodes.ordered_list)
     },
     { type: 'separator' },
     {
-      title: 'Desfazer',
+      title: 'Undo',
       icon: '↶',
       command: undo
     },
     {
-      title: 'Refazer',
+      title: 'Redo',
       icon: '↷',
       command: redo
     }
   ];
 
-  // Cria os botões
+  // Create buttons
   buttons.forEach(btn => {
     if (btn.type === 'separator') {
       const sep = document.createElement('div');
@@ -136,7 +136,7 @@ export function createToolbar(view: EditorView, container: HTMLElement): HTMLEle
       fontFamily: 'monospace'
     });
 
-    // Verifica se o comando está ativo
+    // Check if command is active
     if (btn.active && btn.active(view.state)) {
       button.style.background = '#007bff';
       button.style.color = 'white';
@@ -168,7 +168,7 @@ export function createToolbar(view: EditorView, container: HTMLElement): HTMLEle
     toolbar.appendChild(button);
   });
 
-  // Atualiza toolbar quando o estado muda
+  // Update toolbar when state changes
   const updateToolbar = () => {
     Array.from(toolbar.children).forEach((child, index) => {
       if (child.tagName === 'BUTTON') {
@@ -189,7 +189,7 @@ export function createToolbar(view: EditorView, container: HTMLElement): HTMLEle
     });
   };
 
-  // Observa mudanças no estado
+  // Observe state changes
   const originalDispatch = view.dispatch;
   view.dispatch = (tr) => {
     originalDispatch(tr);

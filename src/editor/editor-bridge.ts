@@ -1,10 +1,10 @@
 /**
- * Editor Bridge - Ponte entre editor-host.html e universal-editor.ts
+ * Editor Bridge - Bridge between editor-host.html and universal-editor.ts
  * 
- * Este arquivo atua como um adaptador que:
- * 1. Escuta mensagens do host (editor-host.html)
- * 2. Interage com o universal-editor.ts original
- * 3. Gerencia estados de edição localmente
+ * This file acts as an adapter that:
+ * 1. Listens to messages from the host (editor-host.html)
+ * 2. Interacts with the original universal-editor.ts
+ * 3. Manages editing states locally
  */
 
 import { EditorState } from 'prosemirror-state';
@@ -39,7 +39,7 @@ interface EditableElement extends HTMLElement {
 // PROSEMIRROR SCHEMA
 // ============================================================================
 
-// Cria schema com suporte a listas
+// Create schema with list support
 const editorSchema = new Schema({
   nodes: addListNodes(basicSchema.spec.nodes, 'paragraph block*', 'block'),
   marks: basicSchema.spec.marks
@@ -66,13 +66,13 @@ class EditorBridge {
    * Initialize the bridge
    */
   private init(): void {
-    console.log('🌉 Editor Bridge inicializado');
+    console.log('🌉 Editor Bridge initialized');
 
-    // Verifica se está dentro de um iframe
+    // Check if inside an iframe
     this.isInIframe = window.parent !== window;
 
     if (!this.isInIframe) {
-      console.warn('⚠️ Não está dentro de um iframe');
+      console.warn('⚠️ Not inside an iframe');
       return;
     }
 
@@ -97,7 +97,7 @@ class EditorBridge {
       if (event.source !== window.parent) return;
 
       const { type, data } = event.data;
-      console.log('📩 Bridge recebeu mensagem:', { type, data });
+      console.log('📩 Bridge received message:', { type, data });
 
       switch (type) {
         case 'aue:mode-change':
@@ -113,7 +113,7 @@ class EditorBridge {
   private handleModeChange(data: { mode: string; event: string }): void {
     const { mode, event: eventName } = data;
 
-    console.log(`🔄 Mudando para modo: ${mode}`);
+    console.log(`🔄 Switching to mode: ${mode}`);
 
     // Update internal state
     this.isInEditMode = mode === 'edit';
@@ -121,12 +121,12 @@ class EditorBridge {
     // Add/remove CSS class
     if (this.isInEditMode) {
       document.documentElement.classList.add('aue-edit-mode');
-      console.log('✅ Modo de edição ATIVADO');
+      console.log('✅ Edit mode ENABLED');
     } else {
       document.documentElement.classList.remove('aue-edit-mode');
-      console.log('✅ Modo de visualização ATIVADO');
+      console.log('✅ Preview mode ENABLED');
       
-      // Fecha editor se estiver aberto
+      // Close editor if open
       this.closeEditor();
     }
 
@@ -135,7 +135,7 @@ class EditorBridge {
       detail: { mode }
     });
     window.dispatchEvent(customEvent);
-    console.log(`✅ Evento disparado: ${eventName}`);
+    console.log(`✅ Event dispatched: ${eventName}`);
   }
 
   /**
@@ -150,10 +150,10 @@ class EditorBridge {
       const target = (e.target as HTMLElement).closest('[data-aue-resource]') as EditableElement;
       if (!target) return;
 
-      // Verifica se o clique foi dentro de um editor ProseMirror ativo
+      // Check if click was inside an active ProseMirror editor
       const proseEditor = document.querySelector('.prosemirror-container');
       if (proseEditor && proseEditor.contains(e.target as Node)) {
-        console.log('ℹ️ Clique dentro do ProseMirror, ignorando');
+        console.log('ℹ️ Click inside ProseMirror, ignoring');
         return;
       }
 
@@ -173,22 +173,22 @@ class EditorBridge {
     const label = element.dataset.aueLabel;
     const selector = `[data-aue-resource="${resource}"]`;
 
-    console.log('🎯 Elemento clicado:', { selector, type, label });
+    console.log('🎯 Element clicked:', { selector, type, label });
 
     // Handle based on type
     switch (type) {
       case 'text':
-        // Para texto simples, usa edição inline
+        // For simple text, use inline editing
         this.editTextInline(element, selector);
         break;
         
       case 'richtext':
-        // Para richtext, usa ProseMirror com toolbar
+        // For richtext, use ProseMirror with toolbar
         this.openProseMirrorEditor(element, selector);
         break;
         
       case 'media':
-        // Para mídia, notifica o host para abrir modal
+        // For media, notify host to open modal
         this.notifyHost('aue:element-clicked', {
           selector,
           type,
@@ -198,7 +198,7 @@ class EditorBridge {
         break;
         
       default:
-        console.log(`ℹ️ Tipo não suportado: ${type}`);
+        console.log(`ℹ️ Unsupported type: ${type}`);
     }
   }
 
@@ -206,27 +206,27 @@ class EditorBridge {
    * Open ProseMirror editor with toolbar
    */
   private openProseMirrorEditor(element: HTMLElement, selector: string): void {
-    console.log('📝 Abrindo editor ProseMirror com toolbar');
+    console.log('📝 Opening ProseMirror editor with toolbar');
 
-    // Fecha editor anterior se existir
+    // Close previous editor if exists
     this.closeEditor();
 
-    // Guarda referências
+    // Store references
     this.currentElement = element;
     this.currentSelector = selector;
 
-    // Pega o conteúdo HTML atual
+    // Get current HTML content
     const htmlContent = element.innerHTML || '';
-    console.log('📄 Conteúdo original:', htmlContent);
+    console.log('📄 Original content:', htmlContent);
 
-    // Cria parser usando o schema
+    // Create parser using schema
     const parser = ProseMirrorDOMParser.fromSchema(editorSchema);
 
-    // Cria container temporário para parsing
+    // Create temporary container for parsing
     const temp = document.createElement('div');
     temp.innerHTML = htmlContent;
 
-    // Parse DOM para ProseMirror doc
+    // Parse DOM to ProseMirror doc
     const doc = parser.parse(temp);
 
     // Cria estado do editor
@@ -238,7 +238,7 @@ class EditorBridge {
       ]
     });
 
-    // Cria container para toolbar + editor
+    // Create container for toolbar + editor
     this.editorContainer = document.createElement('div');
     this.editorContainer.className = 'prosemirror-container';
     Object.assign(this.editorContainer.style, {
@@ -249,11 +249,11 @@ class EditorBridge {
       marginBottom: '10px'
     });
 
-    // Substitui o conteúdo do elemento pelo container
+    // Replace element content with container
     element.innerHTML = '';
     element.appendChild(this.editorContainer);
 
-    // Cria a view do editor (sem toolbar ainda)
+    // Create editor view (without toolbar yet)
     const editorMount = document.createElement('div');
     this.editorContainer.appendChild(editorMount);
 
@@ -266,14 +266,14 @@ class EditorBridge {
       }
     });
 
-    console.log('🎨 EditorView criado');
+    console.log('🎨 EditorView created');
 
-    // Cria e adiciona a toolbar
+    // Create and add toolbar
     const toolbar = createToolbar(this.currentEditor, this.editorContainer);
     this.editorContainer.insertBefore(toolbar, editorMount);
-    console.log('🛠️ Toolbar criada e adicionada');
+    console.log('🛠️ Toolbar created and added');
 
-    // Adiciona estilos CSS ao editor
+    // Add CSS styles to editor
     const editorDom = editorMount.querySelector('.ProseMirror') as HTMLElement;
     if (editorDom) {
       Object.assign(editorDom.style, {
@@ -282,14 +282,14 @@ class EditorBridge {
         outline: 'none',
         cursor: 'text'
       });
-      console.log('✅ Estilos aplicados ao ProseMirror');
+      console.log('✅ Styles applied to ProseMirror');
     } else {
-      console.error('❌ Elemento .ProseMirror não encontrado!');
+      console.error('❌ .ProseMirror element not found!');
     }
 
-    // Foca no editor
+    // Focus on editor
     this.currentEditor.focus();
-    console.log('🎯 Editor focado');
+    console.log('🎯 Editor focused');
 
     // Handler para salvar ao clicar fora
     const handleClickOutside = (e: MouseEvent) => {
@@ -329,32 +329,32 @@ class EditorBridge {
       return;
     }
 
-    console.log('💾 Fechando editor e salvando conteúdo');
+    console.log('💾 Closing editor and saving content');
 
-    // Pega o HTML do editor
+    // Get HTML from editor
     const editorDom = this.editorContainer?.querySelector('.ProseMirror');
     const newContent = editorDom ? editorDom.innerHTML : '';
 
-    // Destroi o editor
+    // Destroy editor
     this.currentEditor.destroy();
 
-    // Remove o container
+    // Remove container
     if (this.editorContainer) {
       this.editorContainer.remove();
     }
 
-    // Restaura o conteúdo no elemento
+    // Restore content in element
     this.currentElement.innerHTML = newContent;
 
-    // Notifica o host sobre a mudança
+    // Notify host about the change
     this.notifyHost('aue:content-changed', {
       selector: this.currentSelector,
       content: newContent
     });
 
-    console.log('✅ Conteúdo salvo:', { selector: this.currentSelector });
+    console.log('✅ Content saved:', { selector: this.currentSelector });
 
-    // Limpa referências
+    // Clear references
     this.currentEditor = null;
     this.currentElement = null;
     this.currentSelector = null;
@@ -362,7 +362,7 @@ class EditorBridge {
   }
 
   /**
-   * Edit text inline (para type="text")
+   * Edit text inline (for type="text")
    */
   private editTextInline(element: EditableElement, selector: string): void {
     const originalText = element.textContent?.trim() || '';
@@ -392,17 +392,17 @@ class EditorBridge {
       input.replaceWith(element);
 
       if (newText !== originalText) {
-        console.log('💾 Salvando alteração inline:', selector, newText);
+        console.log('💾 Saving inline change:', selector, newText);
         this.notifyHost('aue:content-changed', { selector, content: newText });
       } else {
-        console.log('ℹ️ Sem alterações');
+        console.log('ℹ️ No changes');
       }
     };
 
     const cancel = () => {
       element.textContent = originalText;
       input.replaceWith(element);
-      console.log('❌ Edição cancelada');
+      console.log('❌ Editing cancelled');
     };
 
     input.addEventListener('blur', save);
@@ -433,7 +433,7 @@ class EditorBridge {
     setTimeout(() => {
       this.parentConnection = true;
       this.notifyHost('aue:ready');
-      console.log('✅ Bridge notificou host: ready');
+      console.log('✅ Bridge notified host: ready');
     }, 100);
   }
 
@@ -442,7 +442,7 @@ class EditorBridge {
    */
   private debugEditableElements(): void {
     const editables = document.querySelectorAll('[data-aue-resource]');
-    console.log(`📝 Elementos editáveis encontrados: ${editables.length}`);
+    console.log(`📝 Editable elements found: ${editables.length}`);
     editables.forEach((el, index) => {
       const element = el as EditableElement;
       console.log(
