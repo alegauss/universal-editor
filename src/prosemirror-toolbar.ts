@@ -35,7 +35,7 @@ export function createToolbar(view: EditorView, container: HTMLElement): HTMLEle
   });
 
   // Botões da toolbar
-  const buttons = [
+  const buttons: Array<any> = [
     {
       title: 'Negrito',
       icon: '𝐁',
@@ -120,8 +120,8 @@ export function createToolbar(view: EditorView, container: HTMLElement): HTMLEle
 
     const button = document.createElement('button');
     button.type = 'button';
-    button.title = btn.title;
-    button.textContent = btn.icon;
+    button.title = btn.title || '';
+    button.textContent = btn.icon || '';
     
     Object.assign(button.style, {
       background: 'white',
