@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="urn:adobe:aue:system:namespace" content="aue" />
-    <title>Página Editável</title>
+    <title>Editable Page</title>
 
     <style>
       * {
@@ -49,7 +49,7 @@
         margin: 20px 0;
       }
 
-      /* Estilos para modo de edição */
+      /* Styles for edit mode */
       html.aue-edit-mode [data-aue-resource] {
         outline: 2px dashed #3498db;
         outline-offset: 4px;
@@ -78,7 +78,7 @@
         pointer-events: none;
       }
 
-      /* Estilos para o ProseMirror quando ativo */
+      /* Styles for ProseMirror when active */
       .ProseMirror {
         outline: 2px solid #27ae60 !important;
         outline-offset: 4px !important;
@@ -95,12 +95,12 @@
         box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1) !important;
       }
 
-      /* Remove outline dos elementos quando ProseMirror está ativo */
+      /* Remove outline from elements when ProseMirror is active */
       .ProseMirror * {
         outline: none !important;
       }
 
-      /* Estilos para parágrafos dentro do ProseMirror */
+      /* Styles for paragraphs inside ProseMirror */
       .ProseMirror p {
         margin-bottom: 1em;
       }
@@ -156,7 +156,7 @@
           data-aue-prop="jcr:title"
           data-aue-label="Page Title"
         >
-          🎨 Bem-vindo ao Universal Editor
+          🎨 Welcome to Universal Editor
         </h1>
       </header>
 
@@ -167,21 +167,21 @@
         data-aue-label="Article Content"
       >
         <p>
-          Este é um <strong>conteúdo editável</strong> que pode ser modificado
-          através do Universal Editor.
+          This is <strong>editable content</strong> that can be modified
+          through the Universal Editor.
         </p>
         <p>
-          Para editar, clique no botão <strong>"✏️ Editar"</strong> na barra superior
-          e depois clique em qualquer elemento destacado.
+          To edit, click the <strong>"✏️ Edit"</strong> button in the top bar
+          and then click on any highlighted element.
         </p>
         <p>
-          Você pode editar:
+          You can edit:
         </p>
         <ul>
-          <li>Títulos e textos simples</li>
-          <li>Conteúdo rico com formatação</li>
-          <li>Imagens e mídias</li>
-          <li>Componentes reutilizáveis</li>
+          <li>Titles and simple text</li>
+          <li>Rich content with formatting</li>
+          <li>Images and media</li>
+          <li>Reusable components</li>
         </ul>
       </article>
 
@@ -191,14 +191,14 @@
         data-aue-prop="fileReference"
         data-aue-label="Featured Image"
         src="https://picsum.photos/id/1/800/400"
-        alt="Imagem em destaque"
+        alt="Featured image"
       />
     </main>
 
-    <!-- Universal Editor (original) - CARREGA PRIMEIRO -->
+    <!-- Universal Editor (original) - LOADS FIRST -->
     <script type="module" src="../universal-editor.ts"></script>
     
-    <!-- Editor Bridge (nosso adaptador) - CARREGA DEPOIS -->
+    <!-- Editor Bridge (our adapter) - LOADS AFTER -->
     <script type="module" src="../editor/editor-bridge.ts"></script>
   </body>
 </html>

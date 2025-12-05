@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="urn:adobe:aue:system:namespace" content="aue" />
+    <title>Exploring the World</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Georgia', serif;
+        line-height: 1.9;
+        color: #2c3e50;
+        background: #fefefe;
+      }
+
+      header {
+        background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), 
+                    url('https://picsum.photos/id/1015/1920/1080') center/cover;
+        color: white;
+        padding: 120px 20px;
+        text-align: center;
+        position: relative;
+      }
+
+      h1 {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        font-weight: 400;
+        letter-spacing: 2px;
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+      }
+
+      .tagline {
+        font-size: 1.5rem;
+        font-style: italic;
+        opacity: 0.9;
+        font-family: 'Segoe UI', sans-serif;
+      }
+
+      article {
+        max-width: 850px;
+        margin: 70px auto;
+        padding: 0 40px;
+      }
+
+      article h2 {
+        color: #16a085;
+        font-size: 2.2rem;
+        margin: 40px 0 25px;
+        font-weight: 400;
+        border-left: 5px solid #27ae60;
+        padding-left: 20px;
+      }
+
+      article p {
+        margin-bottom: 22px;
+        font-size: 1.2rem;
+        line-height: 2;
+        color: #34495e;
+      }
+
+      article ul {
+        margin: 30px 0;
+        padding-left: 0;
+        list-style: none;
+      }
+
+      article li {
+        margin-bottom: 15px;
+        font-size: 1.15rem;
+        padding-left: 35px;
+        position: relative;
+        color: #2c3e50;
+      }
+
+      article li::before {
+        content: "✈️";
+        position: absolute;
+        left: 0;
+        font-size: 1.3rem;
+      }
+
+      img {
+        width: 100%;
+        height: 500px;
+        object-fit: cover;
+        border-radius: 0;
+        margin: 40px 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .quote-box {
+        background: #ecf0f1;
+        border-left: 6px solid #27ae60;
+        padding: 30px;
+        margin: 40px 0;
+        border-radius: 5px;
+        font-size: 1.3rem;
+        font-style: italic;
+        color: #16a085;
+        text-align: center;
+      }
+
+      .emphasis {
+        color: #27ae60;
+        font-weight: 600;
+      }
+
+      strong {
+        color: #16a085;
+      }
+
+      em {
+        color: #e67e22;
+        font-style: italic;
+      }
+
+      /* Estilos para modo de edição */
+      html.aue-edit-mode [data-aue-resource] {
+        outline: 2px dashed #27ae60;
+        outline-offset: 6px;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      html.aue-edit-mode [data-aue-resource]:hover {
+        outline: 3px solid #f39c12;
+        outline-offset: 6px;
+        background-color: rgba(243, 156, 18, 0.03);
+      }
+
+      html.aue-edit-mode [data-aue-resource]:hover::before {
+        content: "✏️ " attr(data-aue-label);
+        position: absolute;
+        top: -35px;
+        left: 0;
+        background: #f39c12;
+        color: white;
+        padding: 8px 14px;
+        font-size: 13px;
+        border-radius: 5px;
+        white-space: nowrap;
+        z-index: 1000;
+        pointer-events: none;
+        font-weight: 600;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        font-family: 'Segoe UI', sans-serif;
+      }
+
+      /* Estilos para o ProseMirror quando ativo */
+      .ProseMirror {
+        outline: 3px solid #27ae60 !important;
+        outline-offset: 6px !important;
+        padding: 20px !important;
+        min-height: 150px !important;
+        background: #f9fffe !important;
+        cursor: text !important;
+        position: relative !important;
+        z-index: 100 !important;
+        border-radius: 5px !important;
+      }
+
+      .ProseMirror:focus {
+        outline: 4px solid #16a085 !important;
+        box-shadow: 0 0 0 5px rgba(22, 160, 133, 0.15) !important;
+      }
+
+      .ProseMirror * {
+        outline: none !important;
+      }
+
+      .ProseMirror p {
+        margin-bottom: 1.3em;
+      }
+
+      .ProseMirror ul,
+      .ProseMirror ol {
+        padding-left: 2.5em;
+        margin-bottom: 1.3em;
+      }
+
+      .ProseMirror li {
+        margin-bottom: 0.8em;
+      }
+
+      .ProseMirror strong {
+        font-weight: bold;
+        color: #16a085;
+      }
+
+      .ProseMirror em {
+        font-style: italic;
+        color: #e67e22;
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2.5rem;
+        }
+        
+        article {
+          padding: 0 20px;
+        }
+        
+        img {
+          height: 300px;
+        }
+      }
+    </style>
+    
+    <script type="application/vnd.adobe.aue.models+json">
+      {
+        "component-models": {
+          "text": {
+            "fields": [
+              { "name": "jcr:title", "type": "text" },
+              { "name": "text", "type": "richtext" }
+            ]
+          },
+          "media": {
+            "fields": [
+              { "name": "fileReference", "type": "media" },
+              { "name": "alt", "type": "text" }
+            ]
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main
+      data-aue-resource="jcr:content/root"
+      data-aue-type="container"
+      data-aue-label="Main Content"
+    >
+      <header>
+        <h1
+          data-aue-resource="jcr:content/root/title"
+          data-aue-type="text"
+          data-aue-prop="jcr:title"
+          data-aue-label="Page Title"
+        >
+          🌍 Adventures Around the World
+        </h1>
+        <p class="tagline">Discover incredible destinations and inspiring stories</p>
+      </header>
+
+      <article>
+        <h2
+          data-aue-resource="jcr:content/root/intro-title"
+          data-aue-type="text"
+          data-aue-prop="jcr:title"
+          data-aue-label="Introduction Title"
+        >
+          The Art of Travel
+        </h2>
+
+        <div
+          data-aue-resource="jcr:content/root/intro-content"
+          data-aue-type="richtext"
+          data-aue-prop="text"
+          data-aue-label="Introduction Content"
+        >
+          <p>
+            Travel is more than simply visiting new places. It's a journey of 
+            <strong>self-discovery</strong>, an opportunity to expand horizons and 
+            experience different cultures that enrich our soul and transform our 
+            perspective on the world.
+          </p>
+          
+          <p>
+            Each destination holds <em>unique stories</em>, breathtaking landscapes, 
+            and people whose hospitality makes us feel at home, even thousands of 
+            miles away. It is in these experiences that we find the most 
+            <span class="emphasis">memorable</span> moments of our lives.
+          </p>
+        </div>
+
+        <img
+          data-aue-resource="jcr:content/root/hero-image"
+          data-aue-type="media"
+          data-aue-prop="fileReference"
+          data-aue-label="Hero Landscape Image"
+          src="https://picsum.photos/id/1018/1200/600"
+          alt="Mountain landscape at sunset"
+        />
+
+        <h2
+          data-aue-resource="jcr:content/root/destinations-title"
+          data-aue-type="text"
+          data-aue-prop="jcr:title"
+          data-aue-label="Destinations Section Title"
+        >
+          Unmissable Destinations
+        </h2>
+
+        <div
+          data-aue-resource="jcr:content/root/destinations-content"
+          data-aue-type="richtext"
+          data-aue-prop="text"
+          data-aue-label="Destinations Content"
+        >
+          <p>
+            The world is full of extraordinary places waiting to be explored. 
+            Whether you're an adventurer seeking <strong>adrenaline</strong>, a contemplator 
+            of natural beauty, or someone interested in immersing yourself in different cultures, 
+            there is always a perfect destination for you.
+          </p>
+
+          <div class="quote-box">
+            "The world is a book, and those who do not travel read only one page."
+            <br><small>— Saint Augustine</small>
+          </div>
+
+          <p>
+            Some of the most fascinating destinations include:
+          </p>
+          <ul>
+            <li>
+              <strong>Swiss Alps:</strong> Majestic mountains, crystal-clear lakes, and 
+              charming villages that seem straight out of fairy tales
+            </li>
+            <li>
+              <strong>Kyoto, Japan:</strong> Ancient temples, zen gardens, and the perfect harmony 
+              between tradition and modernity
+            </li>
+            <li>
+              <strong>Patagonia:</strong> Wild and untouched nature, imposing glaciers, 
+              and an incomparable sense of freedom
+            </li>
+            <li>
+              <strong>Santorini, Greece:</strong> Unforgettable sunsets, white houses 
+              overlooking the blue Aegean Sea
+            </li>
+            <li>
+              <strong>New Zealand:</strong> Cinematic scenery, extreme adventures, and 
+              diverse, preserved nature
+            </li>
+          </ul>
+
+          <p>
+            Each journey teaches us something new about the world and about ourselves. The 
+            <em>memories created</em> during these experiences become part of who 
+            we are, shaping our vision of life and connecting us with the <strong>universal 
+            essence</strong> of humanity.
+          </p>
+        </div>
+
+        <img
+          data-aue-resource="jcr:content/root/nature-image"
+          data-aue-type="media"
+          data-aue-prop="fileReference"
+          data-aue-label="Nature Photography"
+          src="https://picsum.photos/id/1036/1200/600"
+          alt="Lush and preserved nature"
+        />
+
+        <h2
+          data-aue-resource="jcr:content/root/conclusion-title"
+          data-aue-type="text"
+          data-aue-prop="jcr:title"
+          data-aue-label="Conclusion Title"
+        >
+          Start Your Journey
+        </h2>
+
+        <div
+          data-aue-resource="jcr:content/root/conclusion-content"
+          data-aue-type="richtext"
+          data-aue-prop="text"
+          data-aue-label="Conclusion Content"
+        >
+          <p>
+            Don't wait for the perfect moment – it rarely comes. The best time to 
+            start your adventure is <strong class="emphasis">now</strong>. Plan, 
+            dream, and allow yourself to live experiences that will be forever engraved in 
+            your heart.
+          </p>
+          
+          <p>
+            The world is full of <em>wonders</em> waiting for you. Every journey 
+            begins with a single step, and that step can be taken today. <strong>Bon voyage!</strong>
+          </p>
+        </div>
+
+        <img
+          data-aue-resource="jcr:content/root/closing-image"
+          data-aue-type="media"
+          data-aue-prop="fileReference"
+          data-aue-label="Inspiring Travel Photo"
+          src="https://picsum.photos/id/1043/1200/600"
+          alt="Traveler contemplating the landscape"
+        />
+      </article>
+    </main>
+
+    <!-- Universal Editor (original) - LOADS FIRST -->
+    <script type="module" src="../universal-editor.ts"></script>
+    
+    <!-- Editor Bridge (our adapter) - LOADS AFTER -->
+    <script type="module" src="../editor/editor-bridge.ts"></script>
+  </body>
+</html>

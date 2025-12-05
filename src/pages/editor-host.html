@@ -39,6 +39,49 @@
     .toolbar-buttons {
       display: flex;
       gap: 10px;
+      align-items: center;
+    }
+
+    .url-input-container {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-right: 15px;
+    }
+
+    .url-input-container label {
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .url-input {
+      padding: 6px 12px;
+      border: 1px solid #34495e;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 350px;
+      background: #34495e;
+      color: white;
+    }
+
+    .url-input:focus {
+      outline: none;
+      border-color: #3498db;
+      background: #2c3e50;
+    }
+
+    .url-input::placeholder {
+      color: #95a5a6;
+    }
+
+    .btn-load {
+      background: #9b59b6;
+      color: white;
+    }
+
+    .btn-load:hover {
+      background: #8e44ad;
     }
 
     .btn {
@@ -277,46 +320,59 @@
   </style>
 </head>
 <body>
-  <!-- Toolbar do Editor -->
+  <!-- Editor Toolbar -->
   <div class="editor-toolbar">
     <h1>🎨 Universal Editor</h1>
     <div class="toolbar-buttons">
-      <button id="btn-edit" class="btn btn-edit" title="Modo de Edição">
-        ✏️ Editar
+      <div class="url-input-container">
+        <label for="iframe-url">URL:</label>
+        <input 
+          type="text" 
+          id="iframe-url" 
+          class="url-input"
+          value="http://localhost:3000/pages/example.html"
+          placeholder="http://localhost:3000/pages/example.html"
+        />
+        <button id="btn-load" class="btn btn-load" title="Load URL">
+          🔄 Load
+        </button>
+      </div>
+      <button id="btn-edit" class="btn btn-edit" title="Edit Mode">
+        ✏️ Edit
       </button>
-      <button id="btn-preview" class="btn btn-preview active" title="Modo de Visualização">
-        👁️ Visualizar
+      <button id="btn-preview" class="btn btn-preview active" title="Preview Mode">
+        👁️ Preview
       </button>
-      <button id="btn-save" class="btn btn-save" title="Salvar Alterações">
-        💾 Salvar
+      <button id="btn-save" class="btn btn-save" title="Save Changes">
+        💾 Save
       </button>
     </div>
   </div>
 
-  <!-- Barra de Status -->
+  <!-- Status Bar -->
   <div id="status-bar" class="status-bar">
-    Pronto para editar
+    Ready to edit
   </div>
 
-  <!-- Container Principal -->
+  <!-- Main Container -->
   <div class="editor-container">
     <div id="loading" class="loading-overlay">
-      Carregando editor...
+      Loading editor...
     </div>
     
-    <!-- CORREÇÃO: Remover allow="same-origin" -->
+    <!-- FIX: Remove allow="same-origin" -->
     <iframe 
       id="content-frame" 
       src="example.html"
-      title="Conteúdo Editável"
+      title="Editable Content"
     ></iframe>
   </div>
 
-  <!-- Modal para Rich Text Editor -->
+  <!-- Modal for Rich Text Editor -->
   <div id="rte-modal" class="rte-modal">
     <div class="rte-modal-content">
       <div class="rte-modal-header">
-        <h2 id="rte-title">Editar Conteúdo</h2>
+        <h2 id="rte-title">Edit Content</h2>
         <button class="rte-modal-close" onclick="closeRTE()">&times;</button>
       </div>
       <div class="rte-modal-body">
@@ -327,88 +383,90 @@
         ></div>
         
         <div id="rte-toolbar" style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 4px; display: flex; gap: 5px; flex-wrap: wrap;">
-          <button onclick="formatDoc('bold')" class="btn" style="padding: 5px 10px;" title="Negrito"><b>B</b></button>
-          <button onclick="formatDoc('italic')" class="btn" style="padding: 5px 10px;" title="Itálico"><i>I</i></button>
-          <button onclick="formatDoc('underline')" class="btn" style="padding: 5px 10px;" title="Sublinhado"><u>U</u></button>
+          <button onclick="formatDoc('bold')" class="btn" style="padding: 5px 10px;" title="Bold"><b>B</b></button>
+          <button onclick="formatDoc('italic')" class="btn" style="padding: 5px 10px;" title="Italic"><i>I</i></button>
+          <button onclick="formatDoc('underline')" class="btn" style="padding: 5px 10px;" title="Underline"><u>U</u></button>
           <span style="width: 1px; background: #ddd; margin: 0 5px;"></span>
-          <button onclick="formatDoc('insertUnorderedList')" class="btn" style="padding: 5px 10px;">• Lista</button>
-          <button onclick="formatDoc('insertOrderedList')" class="btn" style="padding: 5px 10px;">1. Lista</button>
+          <button onclick="formatDoc('insertUnorderedList')" class="btn" style="padding: 5px 10px;">• List</button>
+          <button onclick="formatDoc('insertOrderedList')" class="btn" style="padding: 5px 10px;">1. List</button>
           <span style="width: 1px; background: #ddd; margin: 0 5px;"></span>
           <button onclick="formatDoc('formatBlock', 'h2')" class="btn" style="padding: 5px 10px;">H2</button>
           <button onclick="formatDoc('formatBlock', 'h3')" class="btn" style="padding: 5px 10px;">H3</button>
           <button onclick="formatDoc('formatBlock', 'p')" class="btn" style="padding: 5px 10px;">P</button>
           <span style="width: 1px; background: #ddd; margin: 0 5px;"></span>
-          <button onclick="formatDoc('removeFormat')" class="btn" style="padding: 5px 10px; background: #e74c3c; color: white;">✖ Limpar</button>
+          <button onclick="formatDoc('removeFormat')" class="btn" style="padding: 5px 10px; background: #e74c3c; color: white;">✖ Clear</button>
         </div>
       </div>
       <div class="rte-modal-footer">
-        <button class="btn btn-preview" onclick="closeRTE()">Cancelar</button>
-        <button class="btn btn-save" onclick="saveRTE()">Salvar</button>
+        <button class="btn btn-preview" onclick="closeRTE()">Cancel</button>
+        <button class="btn btn-save" onclick="saveRTE()">Save</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal para edição de imagem -->
+  <!-- Modal for image editing -->
   <div id="image-modal" class="image-modal">
     <div class="image-modal-content rte-modal-content">
       <div class="rte-modal-header">
-        <h2 id="image-title">Editar Imagem</h2>
+        <h2 id="image-title">Edit Image</h2>
         <button class="rte-modal-close" onclick="closeImageModal()">&times;</button>
       </div>
       <div class="rte-modal-body">
         <div class="image-input-group">
-          <label for="image-url">URL da Imagem:</label>
+          <label for="image-url">Image URL:</label>
           <input 
             type="text" 
             id="image-url" 
-            placeholder="https://exemplo.com/imagem.jpg"
+            placeholder="https://example.com/image.jpg"
           />
         </div>
         
         <div class="image-input-group">
-          <label for="image-alt">Texto Alternativo (Alt):</label>
+          <label for="image-alt">Alternative Text (Alt):</label>
           <input 
             type="text" 
             id="image-alt" 
-            placeholder="Descrição da imagem"
+            placeholder="Image description"
           />
         </div>
 
         <div class="image-input-group">
-          <label>Pré-visualização:</label>
+          <label>Preview:</label>
           <img 
             id="image-preview" 
             class="image-preview" 
             src="" 
-            alt="Pré-visualização"
+            alt="Preview"
             style="display: none;"
           />
         </div>
       </div>
       <div class="rte-modal-footer">
-        <button class="btn btn-preview" onclick="closeImageModal()">Cancelar</button>
-        <button class="btn btn-save" onclick="saveImage()">Salvar</button>
+        <button class="btn btn-preview" onclick="closeImageModal()">Cancel</button>
+        <button class="btn btn-save" onclick="saveImage()">Save</button>
       </div>
     </div>
   </div>
 
   <script>
     // ========================================================================
-    // SOLUÇÃO SEM PENPAL - Comunicação via postMessage nativo
+    // SOLUTION WITHOUT PENPAL - Communication via native postMessage
     // ========================================================================
 
-    // Estado global
+    // Global state
     let currentMode = 'preview';
     let changedContent = new Map();
     let currentRTEEditable = null;
     let currentImageSelector = null;
     let connectionReady = false;
 
-    // Elementos do DOM
+    // DOM elements
     const iframe = document.getElementById('content-frame');
     const btnEdit = document.getElementById('btn-edit');
     const btnPreview = document.getElementById('btn-preview');
     const btnSave = document.getElementById('btn-save');
+    const btnLoad = document.getElementById('btn-load');
+    const iframeUrl = document.getElementById('iframe-url');
     const statusBar = document.getElementById('status-bar');
     const loading = document.getElementById('loading');
     const rteModal = document.getElementById('rte-modal');
@@ -421,16 +479,16 @@
     const imageTitle = document.getElementById('image-title');
 
     // ========================================================================
-    // COMUNICAÇÃO VIA postMessage (sem Penpal)
+    // COMMUNICATION VIA postMessage (without Penpal)
     // ========================================================================
 
-    // Escuta mensagens do iframe
+    // Listen to messages from iframe
     window.addEventListener('message', (event) => {
       // Verifica se é do iframe filho
       if (event.source !== iframe.contentWindow) return;
 
       const { type, data } = event.data;
-      console.log('📩 Mensagem recebida do iframe:', { type, data });
+      console.log('📩 Message received from iframe:', { type, data });
 
       switch (type) {
         case 'aue:ready':
@@ -446,10 +504,10 @@
     });
 
     function handleReady() {
-      console.log('✅ Iframe pronto');
+      console.log('✅ Iframe ready');
       connectionReady = true;
       loading.classList.add('hidden');
-      showStatus('Editor carregado com sucesso ✅', 'success');
+      showStatus('Editor loaded successfully ✅', 'success');
       
       setTimeout(() => {
         setMode(currentMode);
@@ -458,7 +516,7 @@
 
     function handleElementClicked(data) {
       const { selector, type, label, content } = data;
-      console.log('🎯 Elemento clicado:', { selector, type, label });
+      console.log('🎯 Element clicked:', { selector, type, label });
 
       if (type === 'richtext') {
         currentRTEEditable = { selector };
@@ -491,7 +549,7 @@
     function handleContentChanged(data) {
       const { selector, content } = data;
       changedContent.set(selector, content);
-      showStatus('Conteúdo alterado. Clique em Salvar para persistir.', 'success');
+      showStatus('Content changed. Click Save to persist.', 'success');
     }
 
     // Envia mensagem para o iframe
@@ -522,11 +580,49 @@
     });
 
     // ========================================================================
-    // CONTROLES DE MODO
+    // MODE CONTROLS
     // ========================================================================
 
     btnEdit.addEventListener('click', () => setMode('edit'));
     btnPreview.addEventListener('click', () => setMode('preview'));
+
+    // ========================================================================
+    // IFRAME URL CONTROL
+    // ========================================================================
+
+    btnLoad.addEventListener('click', () => loadIframeUrl());
+    
+    iframeUrl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        loadIframeUrl();
+      }
+    });
+
+    function loadIframeUrl() {
+      const url = iframeUrl.value.trim();
+      
+      if (!url) {
+        showStatus('Please enter a valid URL', 'error');
+        iframeUrl.focus();
+        return;
+      }
+
+      // Reseta o estado
+      connectionReady = false;
+      changedContent.clear();
+      currentRTEEditable = null;
+      currentImageSelector = null;
+      
+      // Mostra loading
+      loading.classList.remove('hidden');
+      showStatus('Loading new URL...');
+      
+      // Carrega a nova URL
+      iframe.src = url;
+      
+      console.log('🔄 Loading new URL:', url);
+    }
 
     function setMode(mode) {
       currentMode = mode;
@@ -535,41 +631,40 @@
       btnPreview.classList.toggle('active', mode === 'preview');
       
       if (!connectionReady) {
-        console.warn('⚠️ Aguardando conexão...');
-        showStatus('Aguardando editor...', 'error');
+        console.warn('⚠️ Waiting for connection...');
+        showStatus('Waiting for editor...', 'error');
         return;
       }
       
       const eventName = mode === 'edit' ? 'aue:ui-edit' : 'aue:ui-preview';
       sendToIframe('aue:mode-change', { mode, event: eventName });
       
-      showStatus(`Modo: ${mode === 'edit' ? '✏️ Edição' : '👁️ Visualização'}`);
+      showStatus(`Mode: ${mode === 'edit' ? '✏️ Edit' : '👁️ Preview'}`);
     }
 
     // ========================================================================
-    // SALVAR ALTERAÇÕES
+    // SAVE CHANGES
     // ========================================================================
 
     btnSave.addEventListener('click', async () => {
       if (changedContent.size === 0) {
-        showStatus('Nenhuma alteração para salvar', 'error');
+        showStatus('No changes to save', 'error');
         return;
       }
 
-      console.log('💾 Salvando:', Object.fromEntries(changedContent));
+      console.log('💾 Saving:', Object.fromEntries(changedContent));
       
       // POST para backend aqui
       
-      showStatus(`${changedContent.size} alteração(ões) salva(s)! 🎉`, 'success');
+      showStatus(`${changedContent.size} change(s) saved! 🎉`, 'success');
       changedContent.clear();
-      
-      setTimeout(() => showStatus('Pronto para editar'), 3000);
+
+      setTimeout(() => showStatus('Ready to edit'), 3000);
     });
 
     // ========================================================================
-    // CONTROLES DO RTE
-    // ========================================================================
-
+    // RTE CONTROLS
+    // ========================================================================   
     window.closeRTE = () => {
       rteModal.classList.remove('active');
       currentRTEEditable = null;
@@ -578,7 +673,7 @@
 
     window.saveRTE = () => {
       if (!currentRTEEditable) {
-        showStatus('Erro: Nenhum elemento selecionado', 'error');
+        showStatus('Error: No element selected', 'error');
         return;
       }
       
@@ -589,9 +684,9 @@
       if (element) {
         element.innerHTML = newContent;
         changedContent.set(currentRTEEditable.selector, newContent);
-        showStatus('Conteúdo salvo! ✅', 'success');
+        showStatus('Content saved! ✅', 'success');
       } else {
-        showStatus('Erro ao salvar', 'error');
+        showStatus('Error saving', 'error');
       }
       
       closeRTE();
@@ -603,7 +698,7 @@
     };
 
     // ========================================================================
-    // CONTROLES DA IMAGEM
+    // IMAGE CONTROLS
     // ========================================================================
 
     window.closeImageModal = () => {
@@ -616,7 +711,7 @@
 
     window.saveImage = () => {
       if (!currentImageSelector) {
-        showStatus('Erro: Nenhuma imagem selecionada', 'error');
+        showStatus('Error: No image selected', 'error');
         return;
       }
       
@@ -624,7 +719,7 @@
       const newAlt = imageAlt.value.trim();
       
       if (!newUrl) {
-        showStatus('URL obrigatória', 'error');
+        showStatus('URL required', 'error');
         imageUrl.focus();
         return;
       }
@@ -637,9 +732,9 @@
         if (newAlt) element.setAttribute('alt', newAlt);
         
         changedContent.set(currentImageSelector, { src: newUrl, alt: newAlt });
-        showStatus('Imagem salva! 🖼️', 'success');
+        showStatus('Image saved! 🖼️', 'success');
       } else {
-        showStatus('Erro ao salvar', 'error');
+        showStatus('Error saving', 'error');
       }
       
       closeImageModal();
@@ -652,7 +747,7 @@
         imagePreview.style.display = 'block';
         imagePreview.onerror = () => {
           imagePreview.style.display = 'none';
-          showStatus('URL inválida', 'error');
+          showStatus('Invalid URL', 'error');
         };
       } else {
         imagePreview.style.display = 'none';
@@ -660,7 +755,7 @@
     });
 
     // ========================================================================
-    // FECHAR MODAIS
+    // CLOSE MODALS
     // ========================================================================
 
     rteModal.addEventListener('click', (e) => {
@@ -672,7 +767,7 @@
     });
 
     // ========================================================================
-    // UTILITÁRIOS
+    // UTILITIES
     // ========================================================================
 
     function showStatus(message, type = '') {
@@ -686,7 +781,7 @@
       }
     }
 
-    // Atalhos
+    // Shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (rteModal.classList.contains('active')) closeRTE();

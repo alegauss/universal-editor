@@ -81,6 +81,58 @@ Or use the built version:
 
 See `example.html` for a complete working example.
 
+## 🎮 Testing the Editor
+
+### Starting the Development Server
+
+First, start the development server:
+
+```bash
+npm run dev
+```
+
+This will start a Vite server at `http://localhost:3000`.
+
+### Viewing Example Pages
+
+You can view the example pages directly to see the content:
+
+- **Example 1** (Universal Editor): `http://localhost:3000/pages/example.html`
+- **Example 2** (Tecnologia e IA): `http://localhost:3000/pages/example2.html`
+- **Example 3** (Viagens e Natureza): `http://localhost:3000/pages/example3.html`
+
+These pages show different content themes with various layouts and styles.
+
+### Editing Content
+
+To **edit** the content, you need to use the editor host:
+
+```
+http://localhost:3000/pages/editor-host.html
+```
+
+The editor host provides:
+- 🎨 **Toolbar** with edit/preview mode buttons
+- 📝 **Rich Text Editor** modal for editing text content
+- 🖼️ **Image Editor** modal for changing images
+- 🔄 **URL Switcher** to load different pages (default: `http://localhost:3000/pages/example.html`)
+- 💾 **Save Button** to persist changes
+
+**How to use:**
+1. Open `editor-host.html` in your browser
+2. Change the URL in the header if you want to edit a different page (example2.html, example3.html, etc.)
+3. Click **"🔄 Carregar"** to load the page
+4. Click **"✏️ Editar"** to enter edit mode
+5. Click on any highlighted element to edit it
+6. Make your changes in the modal editor
+7. Click **"💾 Salvar"** to save (when implemented)
+
+**Example URLs to try:**
+- `http://localhost:3000/pages/example.html` - Original Universal Editor intro
+- `http://localhost:3000/pages/example2.html` - Technology and AI theme
+- `http://localhost:3000/pages/example3.html` - Travel and Nature theme
+- Or any other URL you want to make editable!
+
 ## 📝 Content Editing
 
 The editor supports various content types:
@@ -221,7 +273,15 @@ universal-editor/
 ├── src/                          # TypeScript source files
 │   ├── universal-editor.ts       # Main editor implementation
 │   ├── build.ts                  # Build script
-│   └── test.ts                   # Test script
+│   ├── test.ts                   # Test script
+│   ├── editor/                   # Editor components
+│   │   ├── editor-bridge.ts      # Bridge between iframe and host
+│   │   └── prosemirror-toolbar.ts # ProseMirror toolbar implementation
+│   └── pages/                    # Example HTML pages
+│       ├── editor-host.html      # Editor host with toolbar (EDIÇÃO)
+│       ├── example.html          # Example page 1 - Universal Editor intro
+│       ├── example2.html         # Example page 2 - Tecnologia e IA
+│       └── example3.html         # Example page 3 - Viagens e Natureza
 ├── dist/                         # Built files (generated)
 │   ├── universal-editor.min.js   # Minified bundle with all dependencies
 │   ├── universal-editor.min.js.map # Source map
@@ -232,6 +292,7 @@ universal-editor/
 ├── build.js                      # Original build script
 ├── test.js                       # Original test script
 ├── tsconfig.json                 # TypeScript configuration
+├── vite.config.ts                # Vite configuration
 ├── package.json                  # Project configuration
 └── README.md                     # This file
 ```

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="urn:adobe:aue:system:namespace" content="aue" />
+    <title>Technology and Innovation</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.8;
+        color: #1a1a1a;
+        background: #f8f9fa;
+      }
+
+      header {
+        background: linear-gradient(45deg, #00d2ff 0%, #3a47d5 100%);
+        color: white;
+        padding: 80px 20px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+        opacity: 0.95;
+        font-weight: 300;
+      }
+
+      article {
+        max-width: 900px;
+        margin: 60px auto;
+        padding: 0 30px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+      }
+
+      article h2 {
+        color: #3a47d5;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        border-bottom: 3px solid #00d2ff;
+        padding-bottom: 10px;
+      }
+
+      article p {
+        margin-bottom: 20px;
+        font-size: 1.15rem;
+        text-align: justify;
+      }
+
+      article ul {
+        margin: 25px 0;
+        padding-left: 30px;
+      }
+
+      article li {
+        margin-bottom: 12px;
+        font-size: 1.1rem;
+        color: #444;
+      }
+
+      article li::marker {
+        color: #00d2ff;
+        font-weight: bold;
+      }
+
+      img {
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+        margin: 30px 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease;
+      }
+
+      img:hover {
+        transform: scale(1.02);
+      }
+
+      .highlight {
+        background: linear-gradient(120deg, #00d2ff 0%, #3a47d5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 600;
+      }
+
+      blockquote {
+        border-left: 4px solid #00d2ff;
+        padding-left: 20px;
+        margin: 30px 0;
+        font-style: italic;
+        color: #666;
+        background: #f0f8ff;
+        padding: 20px;
+        border-radius: 8px;
+      }
+
+      /* Estilos para modo de edição */
+      html.aue-edit-mode [data-aue-resource] {
+        outline: 2px dashed #00d2ff;
+        outline-offset: 5px;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.3s;
+      }
+
+      html.aue-edit-mode [data-aue-resource]:hover {
+        outline: 3px solid #ff6b6b;
+        outline-offset: 5px;
+        background-color: rgba(255, 107, 107, 0.05);
+      }
+
+      html.aue-edit-mode [data-aue-resource]:hover::before {
+        content: attr(data-aue-label);
+        position: absolute;
+        top: -30px;
+        left: 0;
+        background: #ff6b6b;
+        color: white;
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 4px;
+        white-space: nowrap;
+        z-index: 1000;
+        pointer-events: none;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Estilos para o ProseMirror quando ativo */
+      .ProseMirror {
+        outline: 3px solid #00d2ff !important;
+        outline-offset: 5px !important;
+        padding: 15px !important;
+        min-height: 120px !important;
+        background: white !important;
+        cursor: text !important;
+        position: relative !important;
+        z-index: 100 !important;
+        border-radius: 8px !important;
+      }
+
+      .ProseMirror:focus {
+        outline: 4px solid #3a47d5 !important;
+        box-shadow: 0 0 0 4px rgba(58, 71, 213, 0.15) !important;
+      }
+
+      .ProseMirror * {
+        outline: none !important;
+      }
+
+      .ProseMirror p {
+        margin-bottom: 1.2em;
+      }
+
+      .ProseMirror ul,
+      .ProseMirror ol {
+        padding-left: 2.5em;
+        margin-bottom: 1.2em;
+      }
+
+      .ProseMirror li {
+        margin-bottom: 0.7em;
+      }
+
+      .ProseMirror strong {
+        font-weight: bold;
+        color: #3a47d5;
+      }
+
+      .ProseMirror em {
+        font-style: italic;
+        color: #00d2ff;
+      }
+    </style>
+    
+    <script type="application/vnd.adobe.aue.models+json">
+      {
+        "component-models": {
+          "text": {
+            "fields": [
+              { "name": "jcr:title", "type": "text" },
+              { "name": "text", "type": "richtext" }
+            ]
+          },
+          "media": {
+            "fields": [
+              { "name": "fileReference", "type": "media" },
+              { "name": "alt", "type": "text" }
+            ]
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main
+      data-aue-resource="jcr:content/root"
+      data-aue-type="container"
+      data-aue-label="Main Content"
+    >
+      <header>
+        <h1
+          data-aue-resource="jcr:content/root/title"
+          data-aue-type="text"
+          data-aue-prop="jcr:title"
+          data-aue-label="Page Title"
+        >
+          🚀 The Future of Technology
+        </h1>
+        <p class="subtitle">Innovation that transforms the world</p>
+      </header>
+
+      <article>
+        <h2
+          data-aue-resource="jcr:content/root/section-title"
+          data-aue-type="text"
+          data-aue-prop="jcr:title"
+          data-aue-label="Section Title"
+        >
+          Artificial Intelligence and Machine Learning
+        </h2>
+
+        <div
+          data-aue-resource="jcr:content/root/content"
+          data-aue-type="richtext"
+          data-aue-prop="text"
+          data-aue-label="Article Content"
+        >
+          <p>
+            <strong class="highlight">Artificial intelligence</strong> is revolutionizing 
+            the way we live and work. From virtual assistants to medical 
+            diagnostic systems, AI is present in virtually every aspect of 
+            modern life.
+          </p>
+          
+          <p>
+            <em>Machine Learning</em>, a subcategory of AI, allows machines to 
+            learn from data and improve their performance over time without being 
+            explicitly programmed for each specific task.
+          </p>
+
+          <blockquote>
+            "Artificial intelligence will be the greatest technological revolution of the 21st century, 
+            transforming industries and creating unimaginable opportunities."
+          </blockquote>
+
+          <p>
+            The main application areas include:
+          </p>
+          <ul>
+            <li><strong>Healthcare:</strong> Accurate diagnoses and personalized treatments</li>
+            <li><strong>Mobility:</strong> Autonomous vehicles and intelligent transportation systems</li>
+            <li><strong>Education:</strong> Personalized and adaptive learning</li>
+            <li><strong>Security:</strong> Fraud detection and cyber threat prevention</li>
+            <li><strong>Entertainment:</strong> Personalized recommendations and AI-generated content</li>
+          </ul>
+
+          <p>
+            The future of technology is <strong>collaborative</strong>, where humans and machines 
+            work together to solve humanity's most complex challenges. The key 
+            is to develop these technologies in an <em>ethical and responsible</em> way, 
+            ensuring that the benefits are accessible to all.
+          </p>
+        </div>
+
+        <img
+          data-aue-resource="jcr:content/root/image1"
+          data-aue-type="media"
+          data-aue-prop="fileReference"
+          data-aue-label="AI Technology Image"
+          src="https://picsum.photos/id/180/900/500"
+          alt="Artificial Intelligence Technology"
+        />
+
+        <div
+          data-aue-resource="jcr:content/root/conclusion"
+          data-aue-type="richtext"
+          data-aue-prop="text"
+          data-aue-label="Conclusion Section"
+        >
+          <h2>The Path Ahead</h2>
+          <p>
+            As we move into the future, the <strong>convergence of technologies</strong> 
+            like AI, IoT, blockchain, and quantum computing will create an even 
+            more powerful and interconnected digital ecosystem.
+          </p>
+          <p>
+            The challenge is not only to create these technologies, but to ensure they are 
+            used for the <span class="highlight">common good</span>, promoting 
+            inclusion, sustainability, and progress for all humanity.
+          </p>
+        </div>
+
+        <img
+          data-aue-resource="jcr:content/root/image2"
+          data-aue-type="media"
+          data-aue-prop="fileReference"
+          data-aue-label="Future Technology Image"
+          src="https://picsum.photos/id/0/900/500"
+          alt="The future of technology"
+        />
+      </article>
+    </main>
+
+    <!-- Universal Editor (original) - LOADS FIRST -->
+    <script type="module" src="../universal-editor.ts"></script>
+    
+    <!-- Editor Bridge (our adapter) - LOADS AFTER -->
+    <script type="module" src="../editor/editor-bridge.ts"></script>
+  </body>
+</html>
