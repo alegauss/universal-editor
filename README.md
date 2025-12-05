@@ -98,8 +98,8 @@ This will start a Vite server at `http://localhost:3000`.
 You can view the example pages directly to see the content:
 
 - **Example 1** (Universal Editor): `http://localhost:3000/pages/example.html`
-- **Example 2** (Tecnologia e IA): `http://localhost:3000/pages/example2.html`
-- **Example 3** (Viagens e Natureza): `http://localhost:3000/pages/example3.html`
+- **Example 2** (Technology and AI): `http://localhost:3000/pages/example2.html`
+- **Example 3** (Travel and Nature): `http://localhost:3000/pages/example3.html`
 
 These pages show different content themes with various layouts and styles.
 
@@ -121,11 +121,11 @@ The editor host provides:
 **How to use:**
 1. Open `editor-host.html` in your browser
 2. Change the URL in the header if you want to edit a different page (example2.html, example3.html, etc.)
-3. Click **"🔄 Carregar"** to load the page
-4. Click **"✏️ Editar"** to enter edit mode
+3. Click **"🔄 Load"** to load the page
+4. Click **"✏️ Edit"** to enter edit mode
 5. Click on any highlighted element to edit it
 6. Make your changes in the modal editor
-7. Click **"💾 Salvar"** to save (when implemented)
+7. Click **"💾 Save"** to save (when implemented)
 
 **Example URLs to try:**
 - `http://localhost:3000/pages/example.html` - Original Universal Editor intro
@@ -278,10 +278,10 @@ universal-editor/
 │   │   ├── editor-bridge.ts      # Bridge between iframe and host
 │   │   └── prosemirror-toolbar.ts # ProseMirror toolbar implementation
 │   └── pages/                    # Example HTML pages
-│       ├── editor-host.html      # Editor host with toolbar (EDIÇÃO)
+│       ├── editor-host.html      # Editor host with toolbar (EDITING)
 │       ├── example.html          # Example page 1 - Universal Editor intro
-│       ├── example2.html         # Example page 2 - Tecnologia e IA
-│       └── example3.html         # Example page 3 - Viagens e Natureza
+│       ├── example2.html         # Example page 2 - Technology and AI
+│       └── example3.html         # Example page 3 - Travel and Nature
 ├── dist/                         # Built files (generated)
 │   ├── universal-editor.min.js   # Minified bundle with all dependencies
 │   ├── universal-editor.min.js.map # Source map
