@@ -1,144 +1,343 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal Editor - Usage Example</title>
-    
-    <!-- AEM Connection Configuration -->
-    <meta name="urn:adobe:aue:system:aemconnection" content="aem:https://localhost:4502" />
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="urn:adobe:aue:system:namespace" content="aue" />
-    
-    <!-- Universal Editor Script (from CDN for production) -->
-   <!-- <script src="https://universal-editor-service.adobe.io/cors.js" async></script> -->
-    
-    <!-- Use source file for development (Vite will handle bundling) -->
-    <script src="/src/universal-editor.ts" type="module"></script>
-    
+    <title>Página Editável</title>
+
     <style>
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .editable-section {
-            border: 2px dashed transparent;
-            padding: 10px;
-            transition: border-color 0.3s;
-        }
-        
-        html.aue-edit-mode .editable-section:hover {
-            border-color: #1473e6;
-        }
-        
-        .container {
-            display: grid;
-            gap: 20px;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        padding: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      header {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #3498db;
+      }
+
+      h1 {
+        font-size: 36px;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      article {
+        margin: 30px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+
+      article p {
+        margin-bottom: 15px;
+      }
+
+      img {
+        width: 100%;
+        max-width: 600px;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin-top: 20px;
+      }
+
+      /* Estilos para modo de edição */
+      html.aue-edit-mode [data-aue-resource] {
+        outline: 2px dashed #3498db;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s;
+      }
+
+      html.aue-edit-mode [data-aue-resource]:hover {
+        outline-color: #e67e22;
+        background-color: rgba(230, 126, 34, 0.05);
+      }
+
+      html.aue-edit-mode [data-aue-resource]:hover::before {
+        content: attr(data-aue-label);
+        position: absolute;
+        top: -25px;
+        left: 0;
+        background: #2c3e50;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        z-index: 1000;
+      }
+
+      /* Overlay de carregamento */
+      .loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #7f8c8d;
+      }
     </style>
-</head>
-<body>
-    <h1>Universal Editor Example</h1>
     
-    <div class="container">
-        <!-- Text Content -->
-        <section class="editable-section">
-            <h2 
-                data-aue-resource="urn:aemconnection:/content/example/title" 
-                data-aue-type="text"
-                data-aue-prop="title">
-                Welcome to Universal Editor
-            </h2>
-            <p 
-                data-aue-resource="urn:aemconnection:/content/example/description" 
-                data-aue-type="richtext"
-                data-aue-prop="text">
-                This is an example of editable content. Click on this text in edit mode to modify it.
-            </p>
-        </section>
-        
-        <!-- Image Content -->
-        <section class="editable-section">
-            <img 
-                data-aue-resource="urn:aemconnection:/content/example/hero-image"
-                data-aue-type="media"
-                data-aue-prop="image"
-                src="https://picsum.photos/600/400"
-                alt="Hero Image"
-                style="max-width: 100%; height: auto;" />
-        </section>
-        
-        <!-- Container with Multiple Components -->
-        <section 
-            data-aue-resource="urn:aemconnection:/content/example/team"
-            data-aue-type="container">
-            <h2>Team Members</h2>
-            
-            <div 
-                data-aue-resource="urn:aemconnection:/content/example/team/member-1"
-                data-aue-type="component"
-                class="editable-section">
-                <h3 
-                    data-aue-prop="name"
-                    data-aue-type="text">
-                    Jane Doe
-                </h3>
-                <p 
-                    data-aue-prop="title"
-                    data-aue-type="text">
-                    Chief Editor
-                </p>
-                <img 
-                    data-aue-prop="avatar"
-                    data-aue-type="media"
-                    src="https://picsum.photos/150"
-                    alt="Jane Doe"
-                    style="border-radius: 50%; width: 150px; height: 150px;" />
-            </div>
-            
-            <div 
-                data-aue-resource="urn:aemconnection:/content/example/team/member-2"
-                data-aue-type="component"
-                class="editable-section">
-                <h3 
-                    data-aue-prop="name"
-                    data-aue-type="text">
-                    John Smith
-                </h3>
-                <p 
-                    data-aue-prop="title"
-                    data-aue-type="text">
-                    Lead Developer
-                </p>
-                <img 
-                    data-aue-prop="avatar"
-                    data-aue-type="media"
-                    src="https://picsum.photos/150"
-                    alt="John Smith"
-                    style="border-radius: 50%; width: 150px; height: 150px;" />
-            </div>
-        </section>
-    </div>
-    
-    <script>
-        // Listen for editor events
-        document.addEventListener('aue:initialized', () => {
-            console.log('✅ Universal Editor initialized');
-        });
-        
-        document.addEventListener('aue:ui-edit', () => {
-            console.log('📝 Entered edit mode');
-        });
-        
-        document.addEventListener('aue:ui-preview', () => {
-            console.log('👁️ Entered preview mode');
-        });
-        
-        document.addEventListener('aue:content-update', (event) => {
-            console.log('🔄 Content updated:', event.detail);
-        });
+    <script type="application/vnd.adobe.aue.models+json">
+      {
+        "component-models": {
+          "text": {
+            "fields": [
+              { "name": "jcr:title", "type": "text" },
+              { "name": "text", "type": "richtext" }
+            ]
+          }
+        }
+      }
     </script>
-</body>
+  </head>
+  <body>
+    <main
+      data-aue-resource="jcr:content/root"
+      data-aue-type="container"
+      data-aue-label="Main Content"
+    >
+      <header>
+        <h1
+          data-aue-resource="jcr:content/root/title"
+          data-aue-type="text"
+          data-aue-prop="jcr:title"
+          data-aue-label="Page Title"
+        >
+          🎨 Bem-vindo ao Universal Editor
+        </h1>
+      </header>
+
+      <article
+        data-aue-resource="jcr:content/root/content"
+        data-aue-type="richtext"
+        data-aue-prop="text"
+        data-aue-label="Article Content"
+      >
+        <p>
+          Este é um <strong>conteúdo editável</strong> que pode ser modificado
+          através do Universal Editor.
+        </p>
+        <p>
+          Para editar, clique no botão <strong>"✏️ Editar"</strong> na barra superior
+          e depois clique em qualquer elemento destacado.
+        </p>
+        <p>
+          Você pode editar:
+        </p>
+        <ul>
+          <li>Títulos e textos simples</li>
+          <li>Conteúdo rico com formatação</li>
+          <li>Imagens e mídias</li>
+          <li>Componentes reutilizáveis</li>
+        </ul>
+      </article>
+
+      <img
+        data-aue-resource="jcr:content/root/image"
+        data-aue-type="media"
+        data-aue-prop="fileReference"
+        data-aue-label="Featured Image"
+        src="https://via.placeholder.com/800x400/3498db/ffffff?text=Imagem+Editável"
+        alt="Imagem em destaque"
+      />
+    </main>
+
+    <!-- SCRIPT CORRIGIDO -->
+    <script>
+      console.log('🚀 Inicializando Universal Editor no frame filho');
+
+      // Notifica o host que está pronto
+      if (window.parent !== window) {
+        setTimeout(() => {
+          window.parent.postMessage({
+            source: 'universal-editor-child',
+            method: 'ready',
+            args: []
+          }, '*');
+          console.log('✅ Notificação de "ready" enviada ao host');
+        }, 100);
+      }
+
+      // ========================================================================
+      // ESCUTA MENSAGENS DO HOST
+      // ========================================================================
+      window.addEventListener('message', (event) => {
+        // Verifica origem da mensagem
+        if (event.data?.source !== 'universal-editor-host') return;
+
+        const { method, args } = event.data;
+        console.log('📩 Mensagem recebida do host:', method, args);
+
+        // Processa os comandos
+        if (method === 'enableEditMode') {
+          enableEditMode();
+        } else if (method === 'disableEditMode') {
+          disableEditMode();
+        }
+      });
+
+      // ========================================================================
+      // CONTROLE DE MODO
+      // ========================================================================
+      function enableEditMode() {
+        console.log('✏️ Modo de edição ATIVADO');
+        document.documentElement.classList.add('aue-edit-mode');
+        
+        // Adiciona indicador visual
+        const indicator = document.createElement('div');
+        indicator.id = 'edit-mode-indicator';
+        indicator.style.cssText = `
+          position: fixed;
+          top: 10px;
+          right: 10px;
+          background: #27ae60;
+          color: white;
+          padding: 8px 12px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: bold;
+          z-index: 9999;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        `;
+        indicator.textContent = '✏️ MODO DE EDIÇÃO';
+        document.body.appendChild(indicator);
+      }
+
+      function disableEditMode() {
+        console.log('👁️ Modo de visualização ATIVADO');
+        document.documentElement.classList.remove('aue-edit-mode');
+        
+        // Remove indicador visual
+        const indicator = document.getElementById('edit-mode-indicator');
+        if (indicator) indicator.remove();
+      }
+
+      // ========================================================================
+      // INTERATIVIDADE DOS ELEMENTOS EDITÁVEIS - ATUALIZADO
+      // ========================================================================
+      document.addEventListener('click', (e) => {
+        const editable = e.target.closest('[data-aue-resource]');
+        
+        // Se não for elemento editável ou não estiver em modo de edição, ignore
+        if (!editable || !document.documentElement.classList.contains('aue-edit-mode')) {
+          return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const resource = editable.getAttribute('data-aue-resource');
+        const selector = `[data-aue-resource="${resource}"]`;
+        const type = editable.getAttribute('data-aue-type');
+        const label = editable.getAttribute('data-aue-label');
+
+        console.log('🎯 Clicou em elemento editável:', { resource, type, label });
+
+        // Adiciona destaque visual temporário
+        editable.style.outline = '3px solid #e67e22';
+        setTimeout(() => {
+          editable.style.outline = '';
+        }, 500);
+
+        // Notifica o host sobre a seleção
+        window.parent.postMessage({
+          source: 'universal-editor-child',
+          method: 'selectElement',
+          args: [selector, { type, label }]
+        }, '*');
+
+        // Abre o editor apropriado baseado no tipo
+        if (type === 'richtext') {
+          window.parent.postMessage({
+            source: 'universal-editor-child',
+            method: 'openRTE',
+            args: [selector, { label }]
+          }, '*');
+        } else if (type === 'text') {
+          editTextInline(editable);
+        } else if (type === 'media') {
+          // NOVO: Abre o editor de imagem
+          window.parent.postMessage({
+            source: 'universal-editor-child',
+            method: 'openImageEditor',
+            args: [selector, { label }]
+          }, '*');
+        }
+      });
+
+      // ========================================================================
+      // EDIÇÃO INLINE PARA TEXTO SIMPLES
+      // ========================================================================
+      function editTextInline(element) {
+        const originalText = element.textContent;
+        const input = document.createElement('input');
+        
+        input.type = 'text';
+        input.value = originalText;
+        input.style.cssText = window.getComputedStyle(element).cssText;
+        input.style.width = '100%';
+        input.style.border = '2px solid #3498db';
+        input.style.outline = 'none';
+        input.style.background = 'white';
+        input.style.padding = '5px';
+        
+        element.replaceWith(input);
+        input.focus();
+        input.select();
+        
+        function save() {
+          const newText = input.value.trim();
+          element.textContent = newText;
+          input.replaceWith(element);
+          
+          if (newText !== originalText) {
+            const resource = element.getAttribute('data-aue-resource');
+            const selector = `[data-aue-resource="${resource}"]`;
+            
+            console.log('💾 Salvando alteração inline:', selector, newText);
+            
+            window.parent.postMessage({
+              source: 'universal-editor-child',
+              method: 'updateContent',
+              args: [selector, newText]
+            }, '*');
+          }
+        }
+        
+        input.addEventListener('blur', save);
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            save();
+          }
+          if (e.key === 'Escape') {
+            element.textContent = originalText;
+            input.replaceWith(element);
+          }
+        });
+      }
+
+      // ========================================================================
+      // ADICIONA CONTADOR DE ELEMENTOS EDITÁVEIS
+      // ========================================================================
+      const editableCount = document.querySelectorAll('[data-aue-resource]').length;
+      console.log(`📝 Encontrados ${editableCount} elementos editáveis`);
+    </script>
+  </body>
 </html>

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Editor - Host</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Toolbar do Editor */
+    .editor-toolbar {
+      background: #2c3e50;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .editor-toolbar h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .toolbar-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-edit {
+      background: #3498db;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: #2980b9;
+    }
+
+    .btn-edit.active {
+      background: #27ae60;
+    }
+
+    .btn-preview {
+      background: #95a5a6;
+      color: white;
+    }
+
+    .btn-preview:hover {
+      background: #7f8c8d;
+    }
+
+    .btn-preview.active {
+      background: #e67e22;
+    }
+
+    .btn-save {
+      background: #27ae60;
+      color: white;
+    }
+
+    .btn-save:hover {
+      background: #229954;
+    }
+
+    /* Área de status */
+    .status-bar {
+      background: #ecf0f1;
+      padding: 8px 20px;
+      font-size: 12px;
+      color: #7f8c8d;
+      border-bottom: 1px solid #bdc3c7;
+    }
+
+    .status-bar.success {
+      background: #d5f4e6;
+      color: #27ae60;
+    }
+
+    .status-bar.error {
+      background: #fadbd8;
+      color: #e74c3c;
+    }
+
+    /* Container do iframe */
+    .editor-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #content-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: white;
+    }
+
+    /* Painel lateral (futuro) */
+    .side-panel {
+      display: none;
+      width: 300px;
+      background: white;
+      border-left: 1px solid #ddd;
+      padding: 20px;
+    }
+
+    /* Overlay de carregamento */
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      color: #7f8c8d;
+    }
+
+    .loading-overlay.hidden {
+      display: none;
+    }
+
+    /* Modal para RTE */
+    .rte-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .rte-modal.active {
+      display: flex;
+    }
+
+    .rte-modal-content {
+      background: white;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 900px;
+      max-height: 80vh;
+      overflow: auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .rte-modal-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .rte-modal-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .rte-modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #7f8c8d;
+    }
+
+    .rte-modal-body {
+      padding: 20px;
+    }
+
+    #rte-editor {
+      min-height: 300px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+    }
+
+    .rte-modal-footer {
+      padding: 15px 20px;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    /* Modal para edição de imagem */
+    .image-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .image-modal.active {
+      display: flex;
+    }
+
+    .image-modal-content {
+      background: white;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow: auto;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .image-preview {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    .image-input-group {
+      margin-bottom: 15px;
+    }
+
+    .image-input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .image-input-group input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .image-input-group input:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+  </style>
+</head>
+<body>
+  <!-- Toolbar do Editor -->
+  <div class="editor-toolbar">
+    <h1>🎨 Universal Editor</h1>
+    <div class="toolbar-buttons">
+      <button id="btn-edit" class="btn btn-edit" title="Modo de Edição">
+        ✏️ Editar
+      </button>
+      <button id="btn-preview" class="btn btn-preview active" title="Modo de Visualização">
+        👁️ Visualizar
+      </button>
+      <button id="btn-save" class="btn btn-save" title="Salvar Alterações">
+        💾 Salvar
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra de Status -->
+  <div id="status-bar" class="status-bar">
+    Pronto para editar
+  </div>
+
+  <!-- Container Principal -->
+  <div class="editor-container">
+    <div id="loading" class="loading-overlay">
+      Carregando editor...
+    </div>
+    
+    <!-- Iframe com o conteúdo editável -->
+    <iframe 
+      id="content-frame" 
+      src="example.html"
+      title="Conteúdo Editável"
+      sandbox="allow-scripts allow-same-origin allow-forms"
+    ></iframe>
+  </div>
+
+  <!-- Modal para Rich Text Editor - ATUALIZADO -->
+  <div id="rte-modal" class="rte-modal">
+    <div class="rte-modal-content">
+      <div class="rte-modal-header">
+        <h2 id="rte-title">Editar Conteúdo</h2>
+        <button class="rte-modal-close" onclick="closeRTE()">&times;</button>
+      </div>
+      <div class="rte-modal-body">
+        <!-- DIV EDITÁVEL com contentEditable -->
+        <div 
+          id="rte-editor" 
+          contenteditable="true"
+          style="min-height: 300px; border: 1px solid #ddd; border-radius: 4px; padding: 15px; outline: none; background: white;"
+        ></div>
+        
+        <!-- Barra de ferramentas básica -->
+        <div id="rte-toolbar" style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 4px; display: flex; gap: 5px; flex-wrap: wrap;">
+          <button onclick="formatDoc('bold')" class="btn" style="padding: 5px 10px;" title="Negrito"><b>B</b></button>
+          <button onclick="formatDoc('italic')" class="btn" style="padding: 5px 10px;" title="Itálico"><i>I</i></button>
+          <button onclick="formatDoc('underline')" class="btn" style="padding: 5px 10px;" title="Sublinhado"><u>U</u></button>
+          <span style="width: 1px; background: #ddd; margin: 0 5px;"></span>
+          <button onclick="formatDoc('insertUnorderedList')" class="btn" style="padding: 5px 10px;" title="Lista">• Lista</button>
+          <button onclick="formatDoc('insertOrderedList')" class="btn" style="padding: 5px 10px;" title="Lista Numerada">1. Lista</button>
+          <span style="width: 1px; background: #ddd; margin: 0 5px;"></span>
+          <button onclick="formatDoc('formatBlock', 'h2')" class="btn" style="padding: 5px 10px;" title="Título 2">H2</button>
+          <button onclick="formatDoc('formatBlock', 'h3')" class="btn" style="padding: 5px 10px;" title="Título 3">H3</button>
+          <button onclick="formatDoc('formatBlock', 'p')" class="btn" style="padding: 5px 10px;" title="Parágrafo">P</button>
+          <span style="width: 1px; background: #ddd; margin: 0 5px;"></span>
+          <button onclick="formatDoc('justifyLeft')" class="btn" style="padding: 5px 10px;" title="Alinhar Esquerda">⬅</button>
+          <button onclick="formatDoc('justifyCenter')" class="btn" style="padding: 5px 10px;" title="Centralizar">↔</button>
+          <button onclick="formatDoc('justifyRight')" class="btn" style="padding: 5px 10px;" title="Alinhar Direita">➡</button>
+          <span style="width: 1px; background: #ddd; margin: 0 5px;"></span>
+          <button onclick="formatDoc('removeFormat')" class="btn" style="padding: 5px 10px; background: #e74c3c; color: white;" title="Limpar Formatação">✖ Limpar</button>
+        </div>
+      </div>
+      <div class="rte-modal-footer">
+        <button class="btn btn-preview" onclick="closeRTE()">Cancelar</button>
+        <button class="btn btn-save" onclick="saveRTE()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para edição de imagem -->
+  <div id="image-modal" class="image-modal">
+    <div class="image-modal-content rte-modal-content">
+      <div class="rte-modal-header">
+        <h2 id="image-title">Editar Imagem</h2>
+        <button class="rte-modal-close" onclick="closeImageModal()">&times;</button>
+      </div>
+      <div class="rte-modal-body">
+        <div class="image-input-group">
+          <label for="image-url">URL da Imagem:</label>
+          <input 
+            type="text" 
+            id="image-url" 
+            placeholder="https://exemplo.com/imagem.jpg"
+          />
+        </div>
+        
+        <div class="image-input-group">
+          <label for="image-alt">Texto Alternativo (Alt):</label>
+          <input 
+            type="text" 
+            id="image-alt" 
+            placeholder="Descrição da imagem"
+          />
+        </div>
+
+        <div class="image-input-group">
+          <label>Pré-visualização:</label>
+          <img 
+            id="image-preview" 
+            class="image-preview" 
+            src="" 
+            alt="Pré-visualização"
+            style="display: none;"
+          />
+        </div>
+      </div>
+      <div class="rte-modal-footer">
+        <button class="btn btn-preview" onclick="closeImageModal()">Cancelar</button>
+        <button class="btn btn-save" onclick="saveImage()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script ATUALIZADO -->
+  <script>
+    // ========================================================================
+    // COMUNICAÇÃO IFRAME SEM PENPAL (usando postMessage nativo)
+    // ========================================================================
+
+    // Estado global
+    let currentMode = 'preview';
+    let changedContent = new Map();
+    let currentRTESelector = null;
+    let currentImageSelector = null;
+    let messageId = 0;
+
+    // Elementos do DOM
+    const iframe = document.getElementById('content-frame');
+    const btnEdit = document.getElementById('btn-edit');
+    const btnPreview = document.getElementById('btn-preview');
+    const btnSave = document.getElementById('btn-save');
+    const statusBar = document.getElementById('status-bar');
+    const loading = document.getElementById('loading');
+    const rteModal = document.getElementById('rte-modal');
+    const rteEditor = document.getElementById('rte-editor');
+    const rteTitle = document.getElementById('rte-title');
+    const imageModal = document.getElementById('image-modal');
+    const imageUrl = document.getElementById('image-url');
+    const imageAlt = document.getElementById('image-alt');
+    const imagePreview = document.getElementById('image-preview');
+    const imageTitle = document.getElementById('image-title');
+
+    // ========================================================================
+    // SISTEMA DE MENSAGENS
+    // ========================================================================
+
+    // Envia mensagem para o iframe filho
+    function sendToChild(method, args = []) {
+      if (!iframe.contentWindow) return;
+      
+      iframe.contentWindow.postMessage({
+        source: 'universal-editor-host',
+        method,
+        args,
+        id: ++messageId
+      }, '*');
+    }
+
+    // Escuta mensagens do iframe filho
+    window.addEventListener('message', (event) => {
+      // Verifica origem da mensagem
+      if (event.data?.source !== 'universal-editor-child') return;
+
+      const { method, args } = event.data;
+
+      // Chama o método correspondente
+      if (editorMethods[method]) {
+        editorMethods[method](...args);
+      }
+    });
+
+    // ========================================================================
+    // MÉTODOS EXPOSTOS PARA O FRAME FILHO
+    // ========================================================================
+
+    const editorMethods = {
+      closeRTE: () => {
+        console.log('📝 Fechando RTE');
+        rteModal.classList.remove('active');
+        currentRTESelector = null;
+      },
+
+      getRTEStylesheet: () => {
+        console.log('🎨 Solicitando stylesheet do RTE');
+        return null;
+      },
+
+      openRTE: (selector, config) => {
+        console.log('📝 Abrindo RTE para:', selector, config);
+        currentRTESelector = selector;
+        
+        rteTitle.textContent = config?.label || 'Editar Conteúdo';
+        
+        // Obtém conteúdo do elemento e coloca no editor
+        const element = iframe.contentDocument?.querySelector(selector);
+        if (element) {
+          rteEditor.innerHTML = element.innerHTML;
+          console.log('📄 Conteúdo carregado no editor:', element.innerHTML);
+        }
+        
+        // Mostra o modal
+        rteModal.classList.add('active');
+        
+        // Foca no editor após abrir
+        setTimeout(() => {
+          rteEditor.focus();
+        }, 100);
+      },
+
+      openImageEditor: (selector, config) => {
+        console.log('🖼️ Abrindo editor de imagem para:', selector, config);
+        currentImageSelector = selector;
+        
+        imageTitle.textContent = config?.label || 'Editar Imagem';
+        
+        // Obtém dados da imagem atual
+        const element = iframe.contentDocument?.querySelector(selector);
+        if (element) {
+          imageUrl.value = element.getAttribute('src') || '';
+          imageAlt.value = element.getAttribute('alt') || '';
+          
+          if (imageUrl.value) {
+            imagePreview.src = imageUrl.value;
+            imagePreview.style.display = 'block';
+          } else {
+            imagePreview.style.display = 'none';
+          }
+          
+          console.log('📄 Dados da imagem carregados:', {
+            src: imageUrl.value,
+            alt: imageAlt.value
+          });
+        }
+        
+        // Mostra o modal
+        imageModal.classList.add('active');
+        
+        // Foca no campo URL
+        setTimeout(() => {
+          imageUrl.focus();
+          imageUrl.select();
+        }, 100);
+      },
+
+      updateContent: (selector, content) => {
+        console.log('💾 Atualizando conteúdo:', selector, content);
+        changedContent.set(selector, content);
+        showStatus('Conteúdo alterado. Clique em Salvar para persistir.', 'success');
+      },
+
+      selectElement: (selector, info) => {
+        console.log('🎯 Elemento selecionado:', selector, info);
+        showStatus(`Selecionado: ${info?.label || selector}`);
+      },
+
+      ready: () => {
+        console.log('✅ Frame filho está pronto');
+        loading.classList.add('hidden');
+        showStatus('Editor carregado com sucesso', 'success');
+        
+        // Define modo inicial
+        setMode(currentMode);
+      }
+    };
+
+    // ========================================================================
+    // INICIALIZAÇÃO DO IFRAME
+    // ========================================================================
+
+    iframe.addEventListener('load', () => {
+      console.log('🔌 Iframe carregado, aguardando inicialização...');
+      
+      // Timeout de segurança
+      setTimeout(() => {
+        if (!loading.classList.contains('hidden')) {
+          console.log('⚠️ Timeout: forçando inicialização');
+          showStatus('Editor carregado', 'success');
+          loading.classList.add('hidden');
+          setMode(currentMode);
+        }
+      }, 2000);
+    });
+
+    // ========================================================================
+    // CONTROLES DE MODO - CORRIGIDO
+    // ========================================================================
+
+    btnEdit.addEventListener('click', () => setMode('edit'));
+    btnPreview.addEventListener('click', () => setMode('preview'));
+
+    function setMode(mode) {
+      currentMode = mode;
+      
+      btnEdit.classList.toggle('active', mode === 'edit');
+      btnPreview.classList.toggle('active', mode === 'preview');
+      
+      // CORREÇÃO: Envia mensagem via postMessage ao invés de dispatchEvent
+      if (iframe.contentWindow) {
+        try {
+          // Envia comando para o iframe filho
+          iframe.contentWindow.postMessage({
+            source: 'universal-editor-host',
+            method: mode === 'edit' ? 'enableEditMode' : 'disableEditMode',
+            args: [mode]
+          }, '*');
+          
+          showStatus(`Modo: ${mode === 'edit' ? '✏️ Edição' : '👁️ Visualização'}`);
+        } catch (error) {
+          console.error('Erro ao mudar modo:', error);
+        }
+      }
+    }
+
+    // ========================================================================
+    // SALVAR ALTERAÇÕES
+    // ========================================================================
+
+    btnSave.addEventListener('click', () => {
+      if (changedContent.size === 0) {
+        showStatus('Nenhuma alteração para salvar', 'error');
+        return;
+      }
+
+      console.log('💾 Salvando alterações:', Object.fromEntries(changedContent));
+      
+      // Aqui você faria a requisição para o backend
+      // fetch('/api/save', { method: 'POST', body: JSON.stringify(data) })
+      
+      showStatus(`${changedContent.size} alteração(ões) salva(s) com sucesso! 🎉`, 'success');
+      changedContent.clear();
+      
+      setTimeout(() => showStatus('Pronto para editar'), 3000);
+    });
+
+    // ========================================================================
+    // FUNÇÕES DE FORMATAÇÃO DO RTE
+    // ========================================================================
+    
+    window.formatDoc = (command, value = null) => {
+      console.log('🎨 Aplicando formatação:', command, value);
+      document.execCommand(command, false, value);
+      rteEditor.focus();
+    };
+
+    // ========================================================================
+    // CONTROLES DO RTE - SIMPLIFICADO E CORRIGIDO
+    // ========================================================================
+
+    window.closeRTE = () => {
+      console.log('❌ Fechando modal RTE');
+      rteModal.classList.remove('active');
+      currentRTESelector = null;
+      rteEditor.innerHTML = '';
+    };
+
+    window.saveRTE = () => {
+      console.log('💾 Tentando salvar RTE...');
+      
+      if (!currentRTESelector) {
+        console.warn('⚠️ Nenhum seletor ativo');
+        showStatus('Erro: Nenhum elemento selecionado', 'error');
+        return;
+      }
+      
+      const newContent = rteEditor.innerHTML;
+      console.log('📝 Novo conteúdo:', newContent);
+      
+      // Atualiza o conteúdo no iframe
+      const element = iframe.contentDocument?.querySelector(currentRTESelector);
+      
+      if (element) {
+        element.innerHTML = newContent;
+        console.log('✅ Conteúdo atualizado no iframe');
+        
+        // Registra a mudança
+        changedContent.set(currentRTESelector, newContent);
+        
+        showStatus('Conteúdo salvo com sucesso! ✅', 'success');
+      } else {
+        console.error('❌ Elemento não encontrado:', currentRTESelector);
+        showStatus('Erro ao salvar conteúdo', 'error');
+      }
+      
+      // SEMPRE fecha o modal, mesmo se houver erro
+      closeRTE();
+    };
+
+    // ========================================================================
+    // CONTROLES DO MODAL DE IMAGEM - SIMPLIFICADO E CORRIGIDO
+    // ========================================================================
+
+    window.closeImageModal = () => {
+      console.log('❌ Fechando modal de imagem');
+      imageModal.classList.remove('active');
+      currentImageSelector = null;
+      imageUrl.value = '';
+      imageAlt.value = '';
+      imagePreview.style.display = 'none';
+      imagePreview.src = '';
+    };
+
+    window.saveImage = () => {
+      console.log('🖼️ Tentando salvar imagem...');
+      
+      if (!currentImageSelector) {
+        console.warn('⚠️ Nenhum seletor de imagem ativo');
+        showStatus('Erro: Nenhuma imagem selecionada', 'error');
+        return;
+      }
+      
+      const newUrl = imageUrl.value.trim();
+      const newAlt = imageAlt.value.trim();
+      
+      if (!newUrl) {
+        showStatus('URL da imagem é obrigatória', 'error');
+        imageUrl.focus();
+        return; // NÃO fecha o modal se a URL estiver vazia
+      }
+      
+      console.log('📸 Novos dados:', { src: newUrl, alt: newAlt });
+      
+      // Atualiza a imagem no iframe
+      const element = iframe.contentDocument?.querySelector(currentImageSelector);
+      
+      if (element) {
+        element.setAttribute('src', newUrl);
+        if (newAlt) {
+          element.setAttribute('alt', newAlt);
+        }
+        console.log('✅ Imagem atualizada no iframe');
+        
+        // Registra a mudança
+        changedContent.set(currentImageSelector, { src: newUrl, alt: newAlt });
+        
+        showStatus('Imagem salva com sucesso! 🖼️', 'success');
+      } else {
+        console.error('❌ Elemento de imagem não encontrado:', currentImageSelector);
+        showStatus('Erro ao salvar imagem', 'error');
+      }
+      
+      // SEMPRE fecha o modal
+      closeImageModal();
+    };
+
+    // Atualiza preview em tempo real
+    imageUrl.addEventListener('input', () => {
+      const url = imageUrl.value.trim();
+      if (url) {
+        imagePreview.src = url;
+        imagePreview.style.display = 'block';
+        
+        // Trata erro de carregamento
+        imagePreview.onerror = () => {
+          imagePreview.style.display = 'none';
+          showStatus('URL de imagem inválida', 'error');
+        };
+        
+        imagePreview.onload = () => {
+          showStatus('Preview carregado ✓');
+        };
+      } else {
+        imagePreview.style.display = 'none';
+      }
+    });
+
+    // Fechar modal RTE ao clicar fora
+    rteModal.addEventListener('click', (e) => {
+      if (e.target === rteModal) {
+        console.log('🖱️ Clicou fora do modal RTE');
+        closeRTE();
+      }
+    });
+
+    // Fechar modal de imagem ao clicar fora
+    imageModal.addEventListener('click', (e) => {
+      if (e.target === imageModal) {
+        console.log('🖱️ Clicou fora do modal de imagem');
+        closeImageModal();
+      }
+    });
+
+    // ========================================================================
+    // UTILITÁRIOS
+    // ========================================================================
+
+    function showStatus(message, type = '') {
+      statusBar.textContent = message;
+      statusBar.className = `status-bar ${type}`;
+      
+      if (type) {
+        setTimeout(() => {
+          statusBar.className = 'status-bar';
+        }, 3000);
+      }
+    }
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+      // ESC para fechar modais
+      if (e.key === 'Escape') {
+        if (rteModal.classList.contains('active')) {
+          console.log('⌨️ ESC pressionado - fechando RTE');
+          closeRTE();
+        } else if (imageModal.classList.contains('active')) {
+          console.log('⌨️ ESC pressionado - fechando modal de imagem');
+          closeImageModal();
+        }
+      }
+      
+      // Ctrl/Cmd + S para salvar
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (rteModal.classList.contains('active')) {
+          console.log('⌨️ Ctrl+S pressionado - salvando RTE');
+          saveRTE();
+        } else if (imageModal.classList.contains('active')) {
+          console.log('⌨️ Ctrl+S pressionado - salvando imagem');
+          saveImage();
+        } else {
+          btnSave.click();
+        }
+      }
+      
+      // Ctrl/Cmd + E para alternar modo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        setMode(currentMode === 'edit' ? 'preview' : 'edit');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1097,6 +1097,7 @@ async function loadTinyMCE(editor: EditorMethods): Promise<void> {
  * @returns Promise that resolves when initialization complete
  */
 async function initializeApp(): Promise<void> {
+  console.log(`Universal Editor Version: ${VERSION}`);
   // Connect to parent frame using Penpal
   // This creates a two-way RPC channel for communication
   const connection = connectToParent({ methods: parentMethods });
