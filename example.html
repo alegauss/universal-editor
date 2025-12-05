@@ -78,18 +78,49 @@
         pointer-events: none;
       }
 
-      /* Overlay de carregamento */
-      .loading {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.9);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
+      /* Estilos para o ProseMirror quando ativo */
+      .ProseMirror {
+        outline: 2px solid #27ae60 !important;
+        outline-offset: 4px !important;
+        padding: 10px !important;
+        min-height: 100px !important;
+        background: white !important;
+        cursor: text !important;
+        position: relative !important;
+        z-index: 100 !important;
+      }
+
+      .ProseMirror:focus {
+        outline: 3px solid #2ecc71 !important;
+        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1) !important;
+      }
+
+      /* Remove outline dos elementos quando ProseMirror está ativo */
+      .ProseMirror * {
+        outline: none !important;
+      }
+
+      /* Estilos para parágrafos dentro do ProseMirror */
+      .ProseMirror p {
+        margin-bottom: 1em;
+      }
+
+      .ProseMirror ul,
+      .ProseMirror ol {
+        padding-left: 2em;
+        margin-bottom: 1em;
+      }
+
+      .ProseMirror li {
+        margin-bottom: 0.5em;
+      }
+
+      .ProseMirror strong {
+        font-weight: bold;
+      }
+
+      .ProseMirror em {
+        font-style: italic;
       }
     </style>
     
@@ -164,175 +195,10 @@
       />
     </main>
 
-    <!-- Incluir o Universal Editor TypeScript -->
+    <!-- Universal Editor (original) - CARREGA PRIMEIRO -->
     <script type="module" src="/src/universal-editor.ts"></script>
     
-    <!-- Sistema de comunicação com o host -->
-    <script>
-      console.log('🚀 Inicializando comunicação com host');
-
-      // Verifica se está dentro de um iframe
-      const isInIframe = window.parent !== window;
-
-      if (isInIframe) {
-        // Notifica o host que está pronto
-        setTimeout(() => {
-          window.parent.postMessage({
-            type: 'aue:ready'
-          }, '*');
-          console.log('✅ Mensagem "ready" enviada ao host');
-        }, 100);
-
-        // ========================================================================
-        // ESCUTA MUDANÇAS DE MODO DO HOST
-        // ========================================================================
-        window.addEventListener('message', (event) => {
-          if (event.source !== window.parent) return;
-
-          const { type, data } = event.data;
-          console.log('📩 Mensagem recebida do host:', { type, data });
-
-          if (type === 'aue:mode-change') {
-            const { mode, event: eventName } = data;
-            
-            console.log(`🔄 Mudando para modo: ${mode}`);
-            
-            // Adiciona/remove classe CSS
-            if (mode === 'edit') {
-              document.documentElement.classList.add('aue-edit-mode');
-              console.log('✅ Modo de edição ATIVADO');
-            } else {
-              document.documentElement.classList.remove('aue-edit-mode');
-              console.log('✅ Modo de visualização ATIVADO');
-            }
-            
-            // Dispara evento customizado para o universal-editor.ts
-            const customEvent = new CustomEvent(eventName, {
-              detail: { mode }
-            });
-            window.dispatchEvent(customEvent);
-            console.log(`✅ Evento disparado: ${eventName}`);
-          }
-        });
-
-        // ========================================================================
-        // INTERCEPTA CLIQUES EM ELEMENTOS EDITÁVEIS
-        // ========================================================================
-        document.addEventListener('click', (e) => {
-          const target = e.target.closest('[data-aue-resource]');
-          if (!target) return;
-
-          // Só processa se estiver em modo de edição
-          if (!document.documentElement.classList.contains('aue-edit-mode')) {
-            console.log('⚠️ Não está em modo de edição, ignorando clique');
-            return;
-          }
-
-          e.preventDefault();
-          e.stopPropagation();
-
-          const resource = target.getAttribute('data-aue-resource');
-          const type = target.getAttribute('data-aue-type');
-          const label = target.getAttribute('data-aue-label');
-          const selector = `[data-aue-resource="${resource}"]`;
-
-          console.log('🎯 Elemento clicado:', { selector, type, label });
-
-          // Se for texto simples, edita inline direto aqui
-          if (type === 'text') {
-            editTextInline(target, selector);
-            return;
-          }
-
-          // Para outros tipos, notifica o host
-          window.parent.postMessage({
-            type: 'aue:element-clicked',
-            data: {
-              selector,
-              type,
-              label,
-              content: target.innerHTML
-            }
-          }, '*');
-        });
-
-        // ========================================================================
-        // EDIÇÃO INLINE PARA TEXTO SIMPLES
-        // ========================================================================
-        function editTextInline(element, selector) {
-          const originalText = element.textContent.trim();
-          const input = document.createElement('input');
-
-          input.type = 'text';
-          input.value = originalText;
-          
-          // Copia estilos do elemento original
-          const styles = window.getComputedStyle(element);
-          input.style.cssText = styles.cssText;
-          input.style.width = '100%';
-          input.style.border = '2px solid #3498db';
-          input.style.outline = 'none';
-          input.style.background = 'white';
-          input.style.padding = '5px';
-          input.style.boxSizing = 'border-box';
-
-          // Substitui o elemento pelo input
-          element.replaceWith(input);
-          input.focus();
-          input.select();
-
-          const save = () => {
-            const newText = input.value.trim();
-            element.textContent = newText;
-            input.replaceWith(element);
-
-            if (newText !== originalText) {
-              console.log('💾 Salvando alteração inline:', selector, newText);
-              
-              // Notifica o host sobre a mudança
-              window.parent.postMessage({
-                type: 'aue:content-changed',
-                data: {
-                  selector,
-                  content: newText
-                }
-              }, '*');
-            } else {
-              console.log('ℹ️ Sem alterações');
-            }
-          };
-
-          const cancel = () => {
-            element.textContent = originalText;
-            input.replaceWith(element);
-            console.log('❌ Edição cancelada');
-          };
-
-          input.addEventListener('blur', save);
-          
-          input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              save();
-            }
-            if (e.key === 'Escape') {
-              e.preventDefault();
-              cancel();
-            }
-          });
-        }
-
-        // ========================================================================
-        // DEBUG: Mostra elementos editáveis encontrados
-        // ========================================================================
-        const editables = document.querySelectorAll('[data-aue-resource]');
-        console.log(`📝 Elementos editáveis encontrados: ${editables.length}`);
-        editables.forEach((el, index) => {
-          console.log(`  ${index + 1}. ${el.getAttribute('data-aue-label')} (${el.getAttribute('data-aue-type')})`);
-        });
-      } else {
-        console.warn('⚠️ Não está dentro de um iframe');
-      }
-    </script>
+    <!-- Editor Bridge (nosso adaptador) - CARREGA DEPOIS -->
+    <script type="module" src="/src/editor-bridge.ts"></script>
   </body>
 </html>
