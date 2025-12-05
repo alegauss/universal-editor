@@ -1,6 +1,6 @@
 # universal-editor
 
-Universal Editor for Adobe Experience Manager (AEM) - Modern TypeScript implementation with clean, modular, and maintainable code.
+Universal Editor - Modern TypeScript implementation with clean, modular, and maintainable code.
 
 ## 🎯 Overview
 
@@ -315,7 +315,6 @@ ISC
 
 ## 🔗 Links
 
-- [Adobe Universal Editor Documentation](https://experienceleague.adobe.com/docs/experience-manager-cloud-service/content/implementing/developing/universal-editor/introduction.html)
 - [ProseMirror](https://prosemirror.net/)
 - [TinyMCE](https://www.tiny.cloud/)
 - [Penpal](https://github.com/Aaronius/penpal)
