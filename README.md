@@ -68,7 +68,8 @@ Use the minified bundle that includes all dependencies:
 ### For Development (Local)
 
 ```html
-<script src="dist/universal-editor.min.js"></script>
+ <script type="module" src="src/universal-editor.ts"></script>
+ <script type="module" src="src/editor/editor-bridge.ts"></script>
 ```
 
 See `src/pages/example.html` for a complete working example.
