@@ -304,16 +304,15 @@
       Carregando editor...
     </div>
     
-    <!-- Iframe com o conteúdo editável -->
+    <!-- CORREÇÃO: Remover allow="same-origin" -->
     <iframe 
       id="content-frame" 
       src="example.html"
       title="Conteúdo Editável"
-      sandbox="allow-scripts allow-same-origin allow-forms"
     ></iframe>
   </div>
 
-  <!-- Modal para Rich Text Editor - ATUALIZADO -->
+  <!-- Modal para Rich Text Editor -->
   <div id="rte-modal" class="rte-modal">
     <div class="rte-modal-content">
       <div class="rte-modal-header">
@@ -321,31 +320,25 @@
         <button class="rte-modal-close" onclick="closeRTE()">&times;</button>
       </div>
       <div class="rte-modal-body">
-        <!-- DIV EDITÁVEL com contentEditable -->
         <div 
           id="rte-editor" 
           contenteditable="true"
           style="min-height: 300px; border: 1px solid #ddd; border-radius: 4px; padding: 15px; outline: none; background: white;"
         ></div>
         
-        <!-- Barra de ferramentas básica -->
         <div id="rte-toolbar" style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 4px; display: flex; gap: 5px; flex-wrap: wrap;">
           <button onclick="formatDoc('bold')" class="btn" style="padding: 5px 10px;" title="Negrito"><b>B</b></button>
           <button onclick="formatDoc('italic')" class="btn" style="padding: 5px 10px;" title="Itálico"><i>I</i></button>
           <button onclick="formatDoc('underline')" class="btn" style="padding: 5px 10px;" title="Sublinhado"><u>U</u></button>
           <span style="width: 1px; background: #ddd; margin: 0 5px;"></span>
-          <button onclick="formatDoc('insertUnorderedList')" class="btn" style="padding: 5px 10px;" title="Lista">• Lista</button>
-          <button onclick="formatDoc('insertOrderedList')" class="btn" style="padding: 5px 10px;" title="Lista Numerada">1. Lista</button>
+          <button onclick="formatDoc('insertUnorderedList')" class="btn" style="padding: 5px 10px;">• Lista</button>
+          <button onclick="formatDoc('insertOrderedList')" class="btn" style="padding: 5px 10px;">1. Lista</button>
           <span style="width: 1px; background: #ddd; margin: 0 5px;"></span>
-          <button onclick="formatDoc('formatBlock', 'h2')" class="btn" style="padding: 5px 10px;" title="Título 2">H2</button>
-          <button onclick="formatDoc('formatBlock', 'h3')" class="btn" style="padding: 5px 10px;" title="Título 3">H3</button>
-          <button onclick="formatDoc('formatBlock', 'p')" class="btn" style="padding: 5px 10px;" title="Parágrafo">P</button>
+          <button onclick="formatDoc('formatBlock', 'h2')" class="btn" style="padding: 5px 10px;">H2</button>
+          <button onclick="formatDoc('formatBlock', 'h3')" class="btn" style="padding: 5px 10px;">H3</button>
+          <button onclick="formatDoc('formatBlock', 'p')" class="btn" style="padding: 5px 10px;">P</button>
           <span style="width: 1px; background: #ddd; margin: 0 5px;"></span>
-          <button onclick="formatDoc('justifyLeft')" class="btn" style="padding: 5px 10px;" title="Alinhar Esquerda">⬅</button>
-          <button onclick="formatDoc('justifyCenter')" class="btn" style="padding: 5px 10px;" title="Centralizar">↔</button>
-          <button onclick="formatDoc('justifyRight')" class="btn" style="padding: 5px 10px;" title="Alinhar Direita">➡</button>
-          <span style="width: 1px; background: #ddd; margin: 0 5px;"></span>
-          <button onclick="formatDoc('removeFormat')" class="btn" style="padding: 5px 10px; background: #e74c3c; color: white;" title="Limpar Formatação">✖ Limpar</button>
+          <button onclick="formatDoc('removeFormat')" class="btn" style="padding: 5px 10px; background: #e74c3c; color: white;">✖ Limpar</button>
         </div>
       </div>
       <div class="rte-modal-footer">
@@ -399,18 +392,17 @@
     </div>
   </div>
 
-  <!-- Script ATUALIZADO -->
   <script>
     // ========================================================================
-    // COMUNICAÇÃO IFRAME SEM PENPAL (usando postMessage nativo)
+    // SOLUÇÃO SEM PENPAL - Comunicação via postMessage nativo
     // ========================================================================
 
     // Estado global
     let currentMode = 'preview';
     let changedContent = new Map();
-    let currentRTESelector = null;
+    let currentRTEEditable = null;
     let currentImageSelector = null;
-    let messageId = 0;
+    let connectionReady = false;
 
     // Elementos do DOM
     const iframe = document.getElementById('content-frame');
@@ -429,80 +421,58 @@
     const imageTitle = document.getElementById('image-title');
 
     // ========================================================================
-    // SISTEMA DE MENSAGENS
+    // COMUNICAÇÃO VIA postMessage (sem Penpal)
     // ========================================================================
 
-    // Envia mensagem para o iframe filho
-    function sendToChild(method, args = []) {
-      if (!iframe.contentWindow) return;
-      
-      iframe.contentWindow.postMessage({
-        source: 'universal-editor-host',
-        method,
-        args,
-        id: ++messageId
-      }, '*');
-    }
-
-    // Escuta mensagens do iframe filho
+    // Escuta mensagens do iframe
     window.addEventListener('message', (event) => {
-      // Verifica origem da mensagem
-      if (event.data?.source !== 'universal-editor-child') return;
+      // Verifica se é do iframe filho
+      if (event.source !== iframe.contentWindow) return;
 
-      const { method, args } = event.data;
+      const { type, data } = event.data;
+      console.log('📩 Mensagem recebida do iframe:', { type, data });
 
-      // Chama o método correspondente
-      if (editorMethods[method]) {
-        editorMethods[method](...args);
+      switch (type) {
+        case 'aue:ready':
+          handleReady();
+          break;
+        case 'aue:element-clicked':
+          handleElementClicked(data);
+          break;
+        case 'aue:content-changed':
+          handleContentChanged(data);
+          break;
       }
     });
 
-    // ========================================================================
-    // MÉTODOS EXPOSTOS PARA O FRAME FILHO
-    // ========================================================================
+    function handleReady() {
+      console.log('✅ Iframe pronto');
+      connectionReady = true;
+      loading.classList.add('hidden');
+      showStatus('Editor carregado com sucesso ✅', 'success');
+      
+      setTimeout(() => {
+        setMode(currentMode);
+      }, 300);
+    }
 
-    const editorMethods = {
-      closeRTE: () => {
-        console.log('📝 Fechando RTE');
-        rteModal.classList.remove('active');
-        currentRTESelector = null;
-      },
+    function handleElementClicked(data) {
+      const { selector, type, label, content } = data;
+      console.log('🎯 Elemento clicado:', { selector, type, label });
 
-      getRTEStylesheet: () => {
-        console.log('🎨 Solicitando stylesheet do RTE');
-        return null;
-      },
-
-      openRTE: (selector, config) => {
-        console.log('📝 Abrindo RTE para:', selector, config);
-        currentRTESelector = selector;
-        
-        rteTitle.textContent = config?.label || 'Editar Conteúdo';
-        
-        // Obtém conteúdo do elemento e coloca no editor
-        const element = iframe.contentDocument?.querySelector(selector);
-        if (element) {
-          rteEditor.innerHTML = element.innerHTML;
-          console.log('📄 Conteúdo carregado no editor:', element.innerHTML);
-        }
-        
-        // Mostra o modal
+      if (type === 'richtext') {
+        currentRTEEditable = { selector };
+        rteTitle.textContent = label || 'Editar Conteúdo';
+        rteEditor.innerHTML = content || '';
         rteModal.classList.add('active');
-        
-        // Foca no editor após abrir
-        setTimeout(() => {
-          rteEditor.focus();
-        }, 100);
-      },
-
-      openImageEditor: (selector, config) => {
-        console.log('🖼️ Abrindo editor de imagem para:', selector, config);
+        setTimeout(() => rteEditor.focus(), 100);
+      } else if (type === 'media') {
         currentImageSelector = selector;
+        imageTitle.textContent = label || 'Editar Imagem';
         
-        imageTitle.textContent = config?.label || 'Editar Imagem';
+        const iframeDoc = iframe.contentDocument;
+        const element = iframeDoc?.querySelector(selector);
         
-        // Obtém dados da imagem atual
-        const element = iframe.contentDocument?.querySelector(selector);
         if (element) {
           imageUrl.value = element.getAttribute('src') || '';
           imageAlt.value = element.getAttribute('alt') || '';
@@ -510,67 +480,49 @@
           if (imageUrl.value) {
             imagePreview.src = imageUrl.value;
             imagePreview.style.display = 'block';
-          } else {
-            imagePreview.style.display = 'none';
           }
-          
-          console.log('📄 Dados da imagem carregados:', {
-            src: imageUrl.value,
-            alt: imageAlt.value
-          });
         }
         
-        // Mostra o modal
         imageModal.classList.add('active');
-        
-        // Foca no campo URL
-        setTimeout(() => {
-          imageUrl.focus();
-          imageUrl.select();
-        }, 100);
-      },
-
-      updateContent: (selector, content) => {
-        console.log('💾 Atualizando conteúdo:', selector, content);
-        changedContent.set(selector, content);
-        showStatus('Conteúdo alterado. Clique em Salvar para persistir.', 'success');
-      },
-
-      selectElement: (selector, info) => {
-        console.log('🎯 Elemento selecionado:', selector, info);
-        showStatus(`Selecionado: ${info?.label || selector}`);
-      },
-
-      ready: () => {
-        console.log('✅ Frame filho está pronto');
-        loading.classList.add('hidden');
-        showStatus('Editor carregado com sucesso', 'success');
-        
-        // Define modo inicial
-        setMode(currentMode);
+        setTimeout(() => imageUrl.focus(), 100);
       }
-    };
+    }
+
+    function handleContentChanged(data) {
+      const { selector, content } = data;
+      changedContent.set(selector, content);
+      showStatus('Conteúdo alterado. Clique em Salvar para persistir.', 'success');
+    }
+
+    // Envia mensagem para o iframe
+    function sendToIframe(type, data = {}) {
+      if (!iframe.contentWindow) {
+        console.warn('⚠️ Iframe não disponível');
+        return;
+      }
+      
+      iframe.contentWindow.postMessage({ type, data }, '*');
+      console.log('📤 Mensagem enviada:', { type, data });
+    }
 
     // ========================================================================
     // INICIALIZAÇÃO DO IFRAME
     // ========================================================================
 
     iframe.addEventListener('load', () => {
-      console.log('🔌 Iframe carregado, aguardando inicialização...');
+      console.log('🔌 Iframe carregado');
       
-      // Timeout de segurança
+      // Aguarda o iframe inicializar
       setTimeout(() => {
-        if (!loading.classList.contains('hidden')) {
-          console.log('⚠️ Timeout: forçando inicialização');
-          showStatus('Editor carregado', 'success');
-          loading.classList.add('hidden');
-          setMode(currentMode);
+        if (!connectionReady) {
+          console.log('⏱️ Forçando inicialização após timeout');
+          handleReady();
         }
       }, 2000);
     });
 
     // ========================================================================
-    // CONTROLES DE MODO - CORRIGIDO
+    // CONTROLES DE MODO
     // ========================================================================
 
     btnEdit.addEventListener('click', () => setMode('edit'));
@@ -582,116 +534,88 @@
       btnEdit.classList.toggle('active', mode === 'edit');
       btnPreview.classList.toggle('active', mode === 'preview');
       
-      // CORREÇÃO: Envia mensagem via postMessage ao invés de dispatchEvent
-      if (iframe.contentWindow) {
-        try {
-          // Envia comando para o iframe filho
-          iframe.contentWindow.postMessage({
-            source: 'universal-editor-host',
-            method: mode === 'edit' ? 'enableEditMode' : 'disableEditMode',
-            args: [mode]
-          }, '*');
-          
-          showStatus(`Modo: ${mode === 'edit' ? '✏️ Edição' : '👁️ Visualização'}`);
-        } catch (error) {
-          console.error('Erro ao mudar modo:', error);
-        }
+      if (!connectionReady) {
+        console.warn('⚠️ Aguardando conexão...');
+        showStatus('Aguardando editor...', 'error');
+        return;
       }
+      
+      const eventName = mode === 'edit' ? 'aue:ui-edit' : 'aue:ui-preview';
+      sendToIframe('aue:mode-change', { mode, event: eventName });
+      
+      showStatus(`Modo: ${mode === 'edit' ? '✏️ Edição' : '👁️ Visualização'}`);
     }
 
     // ========================================================================
     // SALVAR ALTERAÇÕES
     // ========================================================================
 
-    btnSave.addEventListener('click', () => {
+    btnSave.addEventListener('click', async () => {
       if (changedContent.size === 0) {
         showStatus('Nenhuma alteração para salvar', 'error');
         return;
       }
 
-      console.log('💾 Salvando alterações:', Object.fromEntries(changedContent));
+      console.log('💾 Salvando:', Object.fromEntries(changedContent));
       
-      // Aqui você faria a requisição para o backend
-      // fetch('/api/save', { method: 'POST', body: JSON.stringify(data) })
+      // POST para backend aqui
       
-      showStatus(`${changedContent.size} alteração(ões) salva(s) com sucesso! 🎉`, 'success');
+      showStatus(`${changedContent.size} alteração(ões) salva(s)! 🎉`, 'success');
       changedContent.clear();
       
       setTimeout(() => showStatus('Pronto para editar'), 3000);
     });
 
     // ========================================================================
-    // FUNÇÕES DE FORMATAÇÃO DO RTE
-    // ========================================================================
-    
-    window.formatDoc = (command, value = null) => {
-      console.log('🎨 Aplicando formatação:', command, value);
-      document.execCommand(command, false, value);
-      rteEditor.focus();
-    };
-
-    // ========================================================================
-    // CONTROLES DO RTE - SIMPLIFICADO E CORRIGIDO
+    // CONTROLES DO RTE
     // ========================================================================
 
     window.closeRTE = () => {
-      console.log('❌ Fechando modal RTE');
       rteModal.classList.remove('active');
-      currentRTESelector = null;
+      currentRTEEditable = null;
       rteEditor.innerHTML = '';
     };
 
     window.saveRTE = () => {
-      console.log('💾 Tentando salvar RTE...');
-      
-      if (!currentRTESelector) {
-        console.warn('⚠️ Nenhum seletor ativo');
+      if (!currentRTEEditable) {
         showStatus('Erro: Nenhum elemento selecionado', 'error');
         return;
       }
       
       const newContent = rteEditor.innerHTML;
-      console.log('📝 Novo conteúdo:', newContent);
-      
-      // Atualiza o conteúdo no iframe
-      const element = iframe.contentDocument?.querySelector(currentRTESelector);
+      const iframeDoc = iframe.contentDocument;
+      const element = iframeDoc?.querySelector(currentRTEEditable.selector);
       
       if (element) {
         element.innerHTML = newContent;
-        console.log('✅ Conteúdo atualizado no iframe');
-        
-        // Registra a mudança
-        changedContent.set(currentRTESelector, newContent);
-        
-        showStatus('Conteúdo salvo com sucesso! ✅', 'success');
+        changedContent.set(currentRTEEditable.selector, newContent);
+        showStatus('Conteúdo salvo! ✅', 'success');
       } else {
-        console.error('❌ Elemento não encontrado:', currentRTESelector);
-        showStatus('Erro ao salvar conteúdo', 'error');
+        showStatus('Erro ao salvar', 'error');
       }
       
-      // SEMPRE fecha o modal, mesmo se houver erro
       closeRTE();
     };
 
+    window.formatDoc = (command, value = null) => {
+      document.execCommand(command, false, value);
+      rteEditor.focus();
+    };
+
     // ========================================================================
-    // CONTROLES DO MODAL DE IMAGEM - SIMPLIFICADO E CORRIGIDO
+    // CONTROLES DA IMAGEM
     // ========================================================================
 
     window.closeImageModal = () => {
-      console.log('❌ Fechando modal de imagem');
       imageModal.classList.remove('active');
       currentImageSelector = null;
       imageUrl.value = '';
       imageAlt.value = '';
       imagePreview.style.display = 'none';
-      imagePreview.src = '';
     };
 
     window.saveImage = () => {
-      console.log('🖼️ Tentando salvar imagem...');
-      
       if (!currentImageSelector) {
-        console.warn('⚠️ Nenhum seletor de imagem ativo');
         showStatus('Erro: Nenhuma imagem selecionada', 'error');
         return;
       }
@@ -700,71 +624,51 @@
       const newAlt = imageAlt.value.trim();
       
       if (!newUrl) {
-        showStatus('URL da imagem é obrigatória', 'error');
+        showStatus('URL obrigatória', 'error');
         imageUrl.focus();
-        return; // NÃO fecha o modal se a URL estiver vazia
+        return;
       }
       
-      console.log('📸 Novos dados:', { src: newUrl, alt: newAlt });
-      
-      // Atualiza a imagem no iframe
-      const element = iframe.contentDocument?.querySelector(currentImageSelector);
+      const iframeDoc = iframe.contentDocument;
+      const element = iframeDoc?.querySelector(currentImageSelector);
       
       if (element) {
         element.setAttribute('src', newUrl);
-        if (newAlt) {
-          element.setAttribute('alt', newAlt);
-        }
-        console.log('✅ Imagem atualizada no iframe');
+        if (newAlt) element.setAttribute('alt', newAlt);
         
-        // Registra a mudança
         changedContent.set(currentImageSelector, { src: newUrl, alt: newAlt });
-        
-        showStatus('Imagem salva com sucesso! 🖼️', 'success');
+        showStatus('Imagem salva! 🖼️', 'success');
       } else {
-        console.error('❌ Elemento de imagem não encontrado:', currentImageSelector);
-        showStatus('Erro ao salvar imagem', 'error');
+        showStatus('Erro ao salvar', 'error');
       }
       
-      // SEMPRE fecha o modal
       closeImageModal();
     };
 
-    // Atualiza preview em tempo real
     imageUrl.addEventListener('input', () => {
       const url = imageUrl.value.trim();
       if (url) {
         imagePreview.src = url;
         imagePreview.style.display = 'block';
-        
-        // Trata erro de carregamento
         imagePreview.onerror = () => {
           imagePreview.style.display = 'none';
-          showStatus('URL de imagem inválida', 'error');
-        };
-        
-        imagePreview.onload = () => {
-          showStatus('Preview carregado ✓');
+          showStatus('URL inválida', 'error');
         };
       } else {
         imagePreview.style.display = 'none';
       }
     });
 
-    // Fechar modal RTE ao clicar fora
+    // ========================================================================
+    // FECHAR MODAIS
+    // ========================================================================
+
     rteModal.addEventListener('click', (e) => {
-      if (e.target === rteModal) {
-        console.log('🖱️ Clicou fora do modal RTE');
-        closeRTE();
-      }
+      if (e.target === rteModal) closeRTE();
     });
 
-    // Fechar modal de imagem ao clicar fora
     imageModal.addEventListener('click', (e) => {
-      if (e.target === imageModal) {
-        console.log('🖱️ Clicou fora do modal de imagem');
-        closeImageModal();
-      }
+      if (e.target === imageModal) closeImageModal();
     });
 
     // ========================================================================
@@ -782,34 +686,20 @@
       }
     }
 
-    // Atalhos de teclado
+    // Atalhos
     document.addEventListener('keydown', (e) => {
-      // ESC para fechar modais
       if (e.key === 'Escape') {
-        if (rteModal.classList.contains('active')) {
-          console.log('⌨️ ESC pressionado - fechando RTE');
-          closeRTE();
-        } else if (imageModal.classList.contains('active')) {
-          console.log('⌨️ ESC pressionado - fechando modal de imagem');
-          closeImageModal();
-        }
+        if (rteModal.classList.contains('active')) closeRTE();
+        else if (imageModal.classList.contains('active')) closeImageModal();
       }
       
-      // Ctrl/Cmd + S para salvar
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
-        if (rteModal.classList.contains('active')) {
-          console.log('⌨️ Ctrl+S pressionado - salvando RTE');
-          saveRTE();
-        } else if (imageModal.classList.contains('active')) {
-          console.log('⌨️ Ctrl+S pressionado - salvando imagem');
-          saveImage();
-        } else {
-          btnSave.click();
-        }
+        if (rteModal.classList.contains('active')) saveRTE();
+        else if (imageModal.classList.contains('active')) saveImage();
+        else btnSave.click();
       }
       
-      // Ctrl/Cmd + E para alternar modo
       if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
         e.preventDefault();
         setMode(currentMode === 'edit' ? 'preview' : 'edit');

@@ -9,7 +9,7 @@ export default defineConfig({
   publicDir: 'public',
   server: {
     port: 3000,
-    open: '/example.html',
+    open: '/editor-host.html',
   },
   build: {
     outDir: 'dist',

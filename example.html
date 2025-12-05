@@ -17,54 +17,50 @@
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         line-height: 1.6;
         color: #333;
-        padding: 40px;
-        max-width: 1200px;
-        margin: 0 auto;
       }
 
       header {
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 3px solid #3498db;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 20px;
+        text-align: center;
       }
 
       h1 {
-        font-size: 36px;
-        color: #2c3e50;
+        font-size: 2.5rem;
         margin-bottom: 10px;
       }
 
       article {
-        margin: 30px 0;
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 8px;
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
       }
 
       article p {
         margin-bottom: 15px;
+        font-size: 1.1rem;
       }
 
       img {
         width: 100%;
-        max-width: 600px;
         height: auto;
         border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        margin-top: 20px;
+        margin: 20px 0;
       }
 
       /* Estilos para modo de edição */
       html.aue-edit-mode [data-aue-resource] {
         outline: 2px dashed #3498db;
+        outline-offset: 4px;
         cursor: pointer;
         position: relative;
-        transition: all 0.2s;
+        transition: outline 0.2s;
       }
 
       html.aue-edit-mode [data-aue-resource]:hover {
-        outline-color: #e67e22;
-        background-color: rgba(230, 126, 34, 0.05);
+        outline: 2px solid #e67e22;
+        outline-offset: 4px;
       }
 
       html.aue-edit-mode [data-aue-resource]:hover::before {
@@ -72,24 +68,28 @@
         position: absolute;
         top: -25px;
         left: 0;
-        background: #2c3e50;
+        background: #e67e22;
         color: white;
         padding: 4px 8px;
-        border-radius: 4px;
         font-size: 11px;
-        font-weight: 600;
+        border-radius: 3px;
         white-space: nowrap;
         z-index: 1000;
+        pointer-events: none;
       }
 
       /* Overlay de carregamento */
       .loading {
         position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        color: #7f8c8d;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
       }
     </style>
     
@@ -100,6 +100,12 @@
             "fields": [
               { "name": "jcr:title", "type": "text" },
               { "name": "text", "type": "richtext" }
+            ]
+          },
+          "media": {
+            "fields": [
+              { "name": "fileReference", "type": "media" },
+              { "name": "alt", "type": "text" }
             ]
           }
         }
@@ -158,186 +164,175 @@
       />
     </main>
 
-    <!-- SCRIPT CORRIGIDO -->
+    <!-- Incluir o Universal Editor TypeScript -->
+    <script type="module" src="/src/universal-editor.ts"></script>
+    
+    <!-- Sistema de comunicação com o host -->
     <script>
-      console.log('🚀 Inicializando Universal Editor no frame filho');
+      console.log('🚀 Inicializando comunicação com host');
 
-      // Notifica o host que está pronto
-      if (window.parent !== window) {
+      // Verifica se está dentro de um iframe
+      const isInIframe = window.parent !== window;
+
+      if (isInIframe) {
+        // Notifica o host que está pronto
         setTimeout(() => {
           window.parent.postMessage({
-            source: 'universal-editor-child',
-            method: 'ready',
-            args: []
+            type: 'aue:ready'
           }, '*');
-          console.log('✅ Notificação de "ready" enviada ao host');
+          console.log('✅ Mensagem "ready" enviada ao host');
         }, 100);
-      }
 
-      // ========================================================================
-      // ESCUTA MENSAGENS DO HOST
-      // ========================================================================
-      window.addEventListener('message', (event) => {
-        // Verifica origem da mensagem
-        if (event.data?.source !== 'universal-editor-host') return;
+        // ========================================================================
+        // ESCUTA MUDANÇAS DE MODO DO HOST
+        // ========================================================================
+        window.addEventListener('message', (event) => {
+          if (event.source !== window.parent) return;
 
-        const { method, args } = event.data;
-        console.log('📩 Mensagem recebida do host:', method, args);
+          const { type, data } = event.data;
+          console.log('📩 Mensagem recebida do host:', { type, data });
 
-        // Processa os comandos
-        if (method === 'enableEditMode') {
-          enableEditMode();
-        } else if (method === 'disableEditMode') {
-          disableEditMode();
-        }
-      });
-
-      // ========================================================================
-      // CONTROLE DE MODO
-      // ========================================================================
-      function enableEditMode() {
-        console.log('✏️ Modo de edição ATIVADO');
-        document.documentElement.classList.add('aue-edit-mode');
-        
-        // Adiciona indicador visual
-        const indicator = document.createElement('div');
-        indicator.id = 'edit-mode-indicator';
-        indicator.style.cssText = `
-          position: fixed;
-          top: 10px;
-          right: 10px;
-          background: #27ae60;
-          color: white;
-          padding: 8px 12px;
-          border-radius: 4px;
-          font-size: 12px;
-          font-weight: bold;
-          z-index: 9999;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        `;
-        indicator.textContent = '✏️ MODO DE EDIÇÃO';
-        document.body.appendChild(indicator);
-      }
-
-      function disableEditMode() {
-        console.log('👁️ Modo de visualização ATIVADO');
-        document.documentElement.classList.remove('aue-edit-mode');
-        
-        // Remove indicador visual
-        const indicator = document.getElementById('edit-mode-indicator');
-        if (indicator) indicator.remove();
-      }
-
-      // ========================================================================
-      // INTERATIVIDADE DOS ELEMENTOS EDITÁVEIS - ATUALIZADO
-      // ========================================================================
-      document.addEventListener('click', (e) => {
-        const editable = e.target.closest('[data-aue-resource]');
-        
-        // Se não for elemento editável ou não estiver em modo de edição, ignore
-        if (!editable || !document.documentElement.classList.contains('aue-edit-mode')) {
-          return;
-        }
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        const resource = editable.getAttribute('data-aue-resource');
-        const selector = `[data-aue-resource="${resource}"]`;
-        const type = editable.getAttribute('data-aue-type');
-        const label = editable.getAttribute('data-aue-label');
-
-        console.log('🎯 Clicou em elemento editável:', { resource, type, label });
-
-        // Adiciona destaque visual temporário
-        editable.style.outline = '3px solid #e67e22';
-        setTimeout(() => {
-          editable.style.outline = '';
-        }, 500);
-
-        // Notifica o host sobre a seleção
-        window.parent.postMessage({
-          source: 'universal-editor-child',
-          method: 'selectElement',
-          args: [selector, { type, label }]
-        }, '*');
-
-        // Abre o editor apropriado baseado no tipo
-        if (type === 'richtext') {
-          window.parent.postMessage({
-            source: 'universal-editor-child',
-            method: 'openRTE',
-            args: [selector, { label }]
-          }, '*');
-        } else if (type === 'text') {
-          editTextInline(editable);
-        } else if (type === 'media') {
-          // NOVO: Abre o editor de imagem
-          window.parent.postMessage({
-            source: 'universal-editor-child',
-            method: 'openImageEditor',
-            args: [selector, { label }]
-          }, '*');
-        }
-      });
-
-      // ========================================================================
-      // EDIÇÃO INLINE PARA TEXTO SIMPLES
-      // ========================================================================
-      function editTextInline(element) {
-        const originalText = element.textContent;
-        const input = document.createElement('input');
-        
-        input.type = 'text';
-        input.value = originalText;
-        input.style.cssText = window.getComputedStyle(element).cssText;
-        input.style.width = '100%';
-        input.style.border = '2px solid #3498db';
-        input.style.outline = 'none';
-        input.style.background = 'white';
-        input.style.padding = '5px';
-        
-        element.replaceWith(input);
-        input.focus();
-        input.select();
-        
-        function save() {
-          const newText = input.value.trim();
-          element.textContent = newText;
-          input.replaceWith(element);
-          
-          if (newText !== originalText) {
-            const resource = element.getAttribute('data-aue-resource');
-            const selector = `[data-aue-resource="${resource}"]`;
+          if (type === 'aue:mode-change') {
+            const { mode, event: eventName } = data;
             
-            console.log('💾 Salvando alteração inline:', selector, newText);
+            console.log(`🔄 Mudando para modo: ${mode}`);
             
-            window.parent.postMessage({
-              source: 'universal-editor-child',
-              method: 'updateContent',
-              args: [selector, newText]
-            }, '*');
-          }
-        }
-        
-        input.addEventListener('blur', save);
-        input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            save();
-          }
-          if (e.key === 'Escape') {
-            element.textContent = originalText;
-            input.replaceWith(element);
+            // Adiciona/remove classe CSS
+            if (mode === 'edit') {
+              document.documentElement.classList.add('aue-edit-mode');
+              console.log('✅ Modo de edição ATIVADO');
+            } else {
+              document.documentElement.classList.remove('aue-edit-mode');
+              console.log('✅ Modo de visualização ATIVADO');
+            }
+            
+            // Dispara evento customizado para o universal-editor.ts
+            const customEvent = new CustomEvent(eventName, {
+              detail: { mode }
+            });
+            window.dispatchEvent(customEvent);
+            console.log(`✅ Evento disparado: ${eventName}`);
           }
         });
-      }
 
-      // ========================================================================
-      // ADICIONA CONTADOR DE ELEMENTOS EDITÁVEIS
-      // ========================================================================
-      const editableCount = document.querySelectorAll('[data-aue-resource]').length;
-      console.log(`📝 Encontrados ${editableCount} elementos editáveis`);
+        // ========================================================================
+        // INTERCEPTA CLIQUES EM ELEMENTOS EDITÁVEIS
+        // ========================================================================
+        document.addEventListener('click', (e) => {
+          const target = e.target.closest('[data-aue-resource]');
+          if (!target) return;
+
+          // Só processa se estiver em modo de edição
+          if (!document.documentElement.classList.contains('aue-edit-mode')) {
+            console.log('⚠️ Não está em modo de edição, ignorando clique');
+            return;
+          }
+
+          e.preventDefault();
+          e.stopPropagation();
+
+          const resource = target.getAttribute('data-aue-resource');
+          const type = target.getAttribute('data-aue-type');
+          const label = target.getAttribute('data-aue-label');
+          const selector = `[data-aue-resource="${resource}"]`;
+
+          console.log('🎯 Elemento clicado:', { selector, type, label });
+
+          // Se for texto simples, edita inline direto aqui
+          if (type === 'text') {
+            editTextInline(target, selector);
+            return;
+          }
+
+          // Para outros tipos, notifica o host
+          window.parent.postMessage({
+            type: 'aue:element-clicked',
+            data: {
+              selector,
+              type,
+              label,
+              content: target.innerHTML
+            }
+          }, '*');
+        });
+
+        // ========================================================================
+        // EDIÇÃO INLINE PARA TEXTO SIMPLES
+        // ========================================================================
+        function editTextInline(element, selector) {
+          const originalText = element.textContent.trim();
+          const input = document.createElement('input');
+
+          input.type = 'text';
+          input.value = originalText;
+          
+          // Copia estilos do elemento original
+          const styles = window.getComputedStyle(element);
+          input.style.cssText = styles.cssText;
+          input.style.width = '100%';
+          input.style.border = '2px solid #3498db';
+          input.style.outline = 'none';
+          input.style.background = 'white';
+          input.style.padding = '5px';
+          input.style.boxSizing = 'border-box';
+
+          // Substitui o elemento pelo input
+          element.replaceWith(input);
+          input.focus();
+          input.select();
+
+          const save = () => {
+            const newText = input.value.trim();
+            element.textContent = newText;
+            input.replaceWith(element);
+
+            if (newText !== originalText) {
+              console.log('💾 Salvando alteração inline:', selector, newText);
+              
+              // Notifica o host sobre a mudança
+              window.parent.postMessage({
+                type: 'aue:content-changed',
+                data: {
+                  selector,
+                  content: newText
+                }
+              }, '*');
+            } else {
+              console.log('ℹ️ Sem alterações');
+            }
+          };
+
+          const cancel = () => {
+            element.textContent = originalText;
+            input.replaceWith(element);
+            console.log('❌ Edição cancelada');
+          };
+
+          input.addEventListener('blur', save);
+          
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              save();
+            }
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              cancel();
+            }
+          });
+        }
+
+        // ========================================================================
+        // DEBUG: Mostra elementos editáveis encontrados
+        // ========================================================================
+        const editables = document.querySelectorAll('[data-aue-resource]');
+        console.log(`📝 Elementos editáveis encontrados: ${editables.length}`);
+        editables.forEach((el, index) => {
+          console.log(`  ${index + 1}. ${el.getAttribute('data-aue-label')} (${el.getAttribute('data-aue-type')})`);
+        });
+      } else {
+        console.warn('⚠️ Não está dentro de um iframe');
+      }
     </script>
   </body>
 </html>
