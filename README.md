@@ -67,19 +67,11 @@ Use the minified bundle that includes all dependencies:
 
 ### For Development (Local)
 
-For backwards compatibility, the original JavaScript file is still available:
-
-```html
-<script src="universal-editor.js" type="module"></script>
-```
-
-Or use the built version:
-
 ```html
 <script src="dist/universal-editor.min.js"></script>
 ```
 
-See `example.html` for a complete working example.
+See `src/pages/example.html` for a complete working example.
 
 ## 🎮 Testing the Editor
 
@@ -288,9 +280,6 @@ universal-editor/
 │   ├── universal-editor.js       # Compiled TypeScript (not minified)
 │   ├── universal-editor.d.ts     # TypeScript declarations
 │   └── ...                       # Other compiled files
-├── universal-editor.js           # Original JavaScript (backwards compatibility)
-├── build.js                      # Original build script
-├── test.js                       # Original test script
 ├── tsconfig.json                 # TypeScript configuration
 ├── vite.config.ts                # Vite configuration
 ├── package.json                  # Project configuration
@@ -320,23 +309,6 @@ src/universal-editor.ts       # Main entry point
 - New minified bundle (with all deps): ~224 KB (62% reduction)
 - With tree-shaking and gzip, production size is even smaller
 
-## 🔄 Migration to TypeScript
-
-This version has been converted to TypeScript, providing:
-
-✅ **Type Safety**: Catch errors at compile-time  
-✅ **Better IDE Support**: Autocomplete and IntelliSense  
-✅ **Readable**: Clean, well-documented TypeScript code  
-✅ **Maintainable**: Proper separation of concerns  
-✅ **Smaller Bundle**: Tree-shaking reduces final size  
-✅ **Modern**: Uses ES modules and modern JavaScript  
-✅ **Debuggable**: Source maps and clear stack traces  
-✅ **Self-documenting**: TypeScript types serve as documentation  
-
-### Breaking Changes
-
-None! The original `universal-editor.js` file is still available for backwards compatibility. The new build process creates a minified bundle at `dist/universal-editor.min.js` that can be used as a drop-in replacement.
-
 ## 📄 Files
 
 ### TypeScript Source
@@ -351,16 +323,6 @@ None! The original `universal-editor.js` file is still available for backwards c
 - `dist/universal-editor.js` - Compiled JavaScript (not minified)
 - `dist/universal-editor.d.ts` - TypeScript declarations
 
-### Legacy Files (Backwards Compatibility)
-- `universal-editor.js` - Original JavaScript implementation
-- `build.js` - Original build script
-- `test.js` - Original test script
-
-### Documentation
-- `example.html` - Usage example
-- `README.md` - This file
-- `REFACTORING_SUMMARY.md` - Details of the refactoring process
-
 ## 🤝 Contributing
 
 When contributing, please:
@@ -369,10 +331,6 @@ When contributing, please:
 3. Follow existing code style
 4. Test your changes thoroughly
 5. Run `npm run validate` before submitting
-
-## 📜 License
-
-ISC
 
 ## 🔗 Links
 
