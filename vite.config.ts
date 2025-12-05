@@ -5,11 +5,11 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  root: '.',
+  root: 'src',
   publicDir: 'public',
   server: {
     port: 3000,
-    open: '/editor-host.html',
+    open: '/page/editor-host.html',
   },
   build: {
     outDir: 'dist',
